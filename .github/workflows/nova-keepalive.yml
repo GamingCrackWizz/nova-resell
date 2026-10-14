@@ -1,0 +1,28 @@
+# Nova Resell : garde le projet Supabase éveillé (gratuit, tourne sur les serveurs de GitHub, même PC éteint)
+name: Nova anti-pause
+on:
+  schedule:
+    - cron: '17 6 */2 * *'   # tous les 2 jours, vers 8 h (heure de Paris)
+  workflow_dispatch:          # bouton « Run workflow » pour tester
+permissions:
+  contents: write
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Réveiller le projet Nova
+        run: |
+          URL=$(grep -o "url: *'[^']*'" config.js | sed "s/url: *'//;s/'$//")
+          KEY=$(grep -o "key: *'[^']*'" config.js | sed "s/key: *'//;s/'$//")
+          CODE=$(curl -s -o /dev/null -w '%{http_code}' "$URL/rest/v1/jobs?select=id&limit=1" -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
+          echo "Réponse du projet Nova : $CODE"
+          test "$CODE" = "200"
+      - name: Garder le dépôt actif (sinon GitHub coupe le robot après 60 jours)
+        run: |
+          date -u +%Y-%m > .derniere-activite
+          git config user.name "nova-bot"
+          git config user.email "nova-bot@users.noreply.github.com"
+          git add .derniere-activite
+          git diff --cached --quiet || git commit -m "Nova anti-pause"
+          git push
