@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nova Resell</title>
+<meta name="theme-color" content="#0B1226">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nova Resell">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout : appli mobile à une colonne, en-tête « orbite » + onglets fixes en bas, comme une app native */
+:root {
+  --bg: #070C1A; --surface: #0F1730; --surface-2: #142045; --line: #233157;
+  --text: #EAF0FF; --muted: #93A0BF; --cyan: #22D3EE; --indigo: #818CF8;
+  --ok: #34D399; --warn: #FBBF24; --err: #F87171;
+  --grad: linear-gradient(135deg, #06B6D4, #6366F1);
+  --display: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+  --body: Inter, -apple-system, 'Segoe UI', system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: radial-gradient(80% 50% at 100% 100%, rgba(99,102,241,.12), transparent 70%), radial-gradient(70% 40% at 0% 60%, rgba(34,211,238,.08), transparent 70%), var(--bg); background-attachment: fixed; color: var(--text); font: 15px/1.45 var(--body); -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.app { min-height: 100%; display: flex; flex-direction: column; padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+
+/* En-tête */
+.hero { position: relative; overflow: hidden; padding-block: 18px 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: radial-gradient(120% 140% at 100% 0%, rgba(99,102,241,.5), transparent 55%), radial-gradient(90% 120% at 0% 100%, rgba(34,211,238,.3), transparent 60%), linear-gradient(135deg, #0B1226, #1E2A5A); }
+.hero::after { content: ''; position: absolute; right: -70px; top: -30px; width: 240px; height: 90px; border: 2px solid rgba(34,211,238,.3); border-radius: 50%; transform: rotate(-28deg); pointer-events: none; }
+.hero::before { content: ''; position: absolute; width: 8px; height: 8px; border-radius: 50%; background: #fff; box-shadow: 0 0 14px 4px rgba(130,220,255,.8); top: 22px; right: 60px; animation: orbit 9s linear infinite; pointer-events: none; }
+@keyframes orbit { 0% { transform: translate(0,0); opacity: .9 } 25% { transform: translate(-90px,40px); opacity: .5 } 50% { transform: translate(-150px,55px); opacity: .2 } 75% { transform: translate(-60px,10px); opacity: .6 } 100% { transform: translate(0,0); opacity: .9 } }
+@media (prefers-reduced-motion: reduce) { .hero::before { animation: none; } }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand svg { width: 44px; height: 44px; flex: none; border-radius: 13px; box-shadow: 0 0 0 1px rgba(34,211,238,.35), 0 6px 18px rgba(0,0,0,.4); }
+.brand h1 { margin: 0; font: 700 21px/1.1 var(--display); letter-spacing: -.3px; }
+.brand h1 span { color: var(--cyan); font-weight: 500; }
+.pc { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 99px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); color: var(--muted); white-space: nowrap; }
+.pc i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.pc.on { color: var(--ok); } .pc.on i { background: var(--ok); box-shadow: 0 0 10px var(--ok); }
+.pc.off { color: var(--warn); } .pc.off i { background: var(--warn); }
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 14px; }
+.kpi { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 8px 4px; text-align: center; }
+.kpi b { display: block; font: 700 18px var(--display); font-variant-numeric: tabular-nums; }
+.kpi span { font-size: 9.5px; letter-spacing: .5px; text-transform: uppercase; color: #A9B6D6; }
+
+.alert { margin: 12px 0 0; padding: 10px 12px; border-radius: 12px; font-size: 13.5px; background: linear-gradient(135deg, #0E7490, #4F46E5); }
+.alert b { display: block; }
+
+/* Contenu */
+main { flex: 1; padding-block: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 14px; align-content: start; }
+h2 { margin: 6px 0 0; font: 700 18px var(--display); text-wrap: balance; }
+.sub { color: var(--muted); font-size: 13px; margin: 0; }
+.card { background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,0)), var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px; display: grid; gap: 10px; min-width: 0; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+.btn { border: 1px solid var(--line); background: var(--surface-2); border-radius: 14px; padding: 12px 14px; font-weight: 600; font-size: 15px; }
+.btn.primary { background: var(--grad); border-color: transparent; color: #fff; box-shadow: 0 8px 24px rgba(99,102,241,.35); }
+.btn.small { padding: 8px 12px; font-size: 13.5px; border-radius: 11px; }
+.btn:disabled { opacity: .45; }
+.btn:focus-visible, .tab:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.grow { flex: 1; }
+
+/* Ajout de photos */
+.pick { position: relative; display: grid; place-items: center; gap: 6px; text-align: center; padding: 26px 14px; border-radius: 18px; border: 2px dashed rgba(34,211,238,.45); background: linear-gradient(180deg, rgba(34,211,238,.08), rgba(99,102,241,.06)); }
+.pick input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.pick .ico { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; background: var(--grad); font-size: 24px; }
+.pick b { font: 700 17px var(--display); }
+.thumbs { display: flex; gap: 6px; overflow-x: auto; }
+.thumbs img { width: 64px; height: 64px; object-fit: cover; border-radius: 10px; flex: none; background: var(--surface-2); }
+.staged { display: grid; gap: 8px; }
+.staged .item { display: flex; gap: 10px; align-items: center; background: var(--surface-2); border-radius: 14px; padding: 8px; }
+.staged .item .thumbs { flex: 1; min-width: 0; }
+.x { border: 0; background: rgba(255,255,255,.08); width: 32px; height: 32px; border-radius: 50%; flex: none; }
+
+/* Listes */
+.list { display: grid; gap: 8px; }
+.li { display: flex; gap: 10px; align-items: center; background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0)), var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 10px; min-width: 0; }
+.li img { width: 52px; height: 52px; object-fit: cover; border-radius: 10px; flex: none; background: var(--surface-2); }
+.li .meta { flex: 1; min-width: 0; }
+.li .t { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.li .s { font-size: 12.5px; color: var(--muted); }
+.pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--surface-2); color: var(--muted); }
+.pill.ok { background: rgba(52,211,153,.15); color: var(--ok); }
+.pill.run { background: rgba(34,211,238,.15); color: var(--cyan); }
+.pill.err { background: rgba(248,113,113,.15); color: var(--err); }
+.pill.warn { background: rgba(251,191,36,.15); color: var(--warn); }
+.sku { display: inline-block; font: 700 11px var(--display); background: var(--cyan); color: #04121A; border-radius: 6px; padding: 1px 6px; margin-right: 4px; }
+textarea { width: 100%; font: inherit; color: var(--text); background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px; resize: vertical; }
+.q { font-style: italic; color: var(--muted); font-size: 13.5px; }
+.empty { text-align: center; color: var(--muted); padding: 24px 10px; font-size: 14px; }
+.empty b { display: block; color: var(--text); font-family: var(--display); font-size: 16px; margin-bottom: 4px; }
+.spin { display: inline-block; width: 13px; height: 13px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: sp .8s linear infinite; vertical-align: -2px; }
+@keyframes sp { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
+
+/* Barre d'onglets en bas */
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: grid; grid-template-columns: repeat(4, 1fr);
+  padding-top: 6px; padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px));
+  background: rgba(10,16,34,.92); backdrop-filter: blur(14px); border-top: 1px solid var(--line); }
+.tab { border: 0; background: none; display: grid; justify-items: center; gap: 2px; padding: 6px 0; font-size: 11px; font-weight: 600; color: var(--muted); position: relative; }
+.tab .i { font-size: 21px; filter: grayscale(1); opacity: .75; }
+.tab.active { color: var(--text); } .tab.active .i { filter: none; opacity: 1; }
+.tab.active::before { content: ''; position: absolute; top: -7px; left: 30%; right: 30%; height: 3px; border-radius: 0 0 4px 4px; background: var(--grad); box-shadow: 0 0 12px rgba(34,211,238,.7); }
+.tab .n { position: absolute; top: 0; left: calc(50% + 6px); min-width: 17px; height: 17px; border-radius: 99px; background: var(--grad); color: #fff; font-size: 10.5px; line-height: 17px; padding: 0 4px; }
+.toast { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 14px; z-index: 20; max-width: calc(100% - 32px); text-align: center; }
+.help { font-size: 13.5px; color: var(--muted); }
+.help ol { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.relay { border-color: rgba(52,211,153,.4); }
+</style><style>
+:root { padding-top: env(safe-area-inset-top, 0px); }
+[hidden] { display: none !important; }
+.login { min-height: 100%; display: grid; place-items: center; padding-block: 24px; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.login .box { width: 100%; max-width: 380px; display: grid; gap: 14px; }
+.login .logo { width: 84px; height: 84px; margin: 0 auto; border-radius: 24px; box-shadow: 0 0 0 1px rgba(34,211,238,.4), 0 0 40px rgba(99,102,241,.45); }
+.login h1 { margin: 0; text-align: center; font: 700 30px var(--display); letter-spacing: -.5px; }
+.login h1 span { color: var(--cyan); font-weight: 500; }
+.login p { margin: 0; text-align: center; color: var(--muted); }
+.field { display: grid; gap: 6px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.field input { font: inherit; font-size: 16px; color: var(--text); background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 13px 14px; }
+.field input:focus { outline: none; border-color: var(--indigo); box-shadow: 0 0 0 3px rgba(129,140,248,.25); }
+.err { color: var(--err); text-align: center; font-size: 13.5px; min-height: 18px; }
+.linkbtn { border: 0; background: none; color: var(--cyan); font-weight: 600; padding: 6px; }
+.me { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="login" id="login" hidden>
+  <div class="box">
+    <svg class="logo" viewBox="0 0 128 128" aria-hidden="true"><defs><linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22D3EE"/><stop offset="1" stop-color="#818CF8"/></linearGradient></defs><rect width="128" height="128" rx="34" fill="#0B1226"/><ellipse cx="64" cy="64" rx="46" ry="20" fill="none" stroke="url(#lg2)" stroke-width="7" transform="rotate(-28 64 64)"/><path d="M64 34c2 14 8 21 22 25-14 4-20 11-22 26-2-15-8-22-22-26 14-4 20-11 22-25z" fill="#fff"/><circle cx="104" cy="44" r="6" fill="#22D3EE"/></svg>
+    <h1>Nova <span>Resell</span></h1>
+    <p id="loginSub">Connecte-toi avec ton compte Nova : le même que dans l'extension sur ton PC.</p>
+    <label class="field">E-mail<input id="lMail" type="email" autocomplete="username" inputmode="email"></label>
+    <label class="field">Mot de passe<input id="lPass" type="password" autocomplete="current-password"></label>
+    <button class="btn primary" id="lGo">Se connecter</button>
+    <div class="err" id="lErr"></div>
+    <button class="linkbtn" id="lSwitch">Pas encore de compte ? Créer un compte</button>
+  </div>
+</div>
+<div class="app">
+  <header class="hero">
+    <div class="brand">
+      <svg viewBox="0 0 128 128" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22D3EE"/><stop offset="1" stop-color="#818CF8"/></linearGradient></defs><rect width="128" height="128" rx="34" fill="#0B1226"/><ellipse cx="64" cy="64" rx="46" ry="20" fill="none" stroke="url(#lg)" stroke-width="7" transform="rotate(-28 64 64)"/><path d="M64 34c2 14 8 21 22 25-14 4-20 11-22 26-2-15-8-22-22-26 14-4 20-11 22-25z" fill="#fff"/><circle cx="104" cy="44" r="6" fill="#22D3EE"/></svg>
+      <h1>Nova <span>Resell</span></h1>
+      <span class="pc" id="pcStatus"><i></i><span id="pcText">PC…</span></span>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><b id="kShip">–</b><span>À expédier</span></div>
+      <div class="kpi"><b id="kDrafts">–</b><span>Brouillons</span></div>
+      <div class="kpi"><b id="kOnline">–</b><span>En ligne</span></div>
+      <div class="kpi"><b id="kMonth">–</b><span>Ce mois</span></div>
+    </div>
+    <div class="alert" id="captcha" hidden><b>🛡️ Vérification anti-robot Vinted</b>Passe la vérification sur vinted.fr depuis ton PC : les automatismes sont en pause.</div>
+  </header>
+
+  <main id="view"></main>
+</div>
+
+<nav class="tabs" aria-label="Sections">
+  <button class="tab active" data-tab="photos" id="tabPhotos"><span class="i">📸</span>Photos</button>
+  <button class="tab" data-tab="drafts" id="tabDrafts"><span class="i">📝</span>Brouillons</button>
+  <button class="tab" data-tab="messages" id="tabMessages"><span class="i">💬</span>Messages</button>
+  <button class="tab" data-tab="ventes" id="tabVentes"><span class="i">📦</span>Ventes</button>
+</nav>
+
+<script src="config.js"></script>
+<script>
+(() => {
+  const CFG = window.NOVA_CONFIG || {};
+  const $ = (s) => document.querySelector(s);
+  const h = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); kids.flat().forEach((k) => k != null && k !== false && n.append(k)); return n; };
+  let tab = 'photos', staged = [], jobs = [], state = null, actions = {}, busy = false, mode = 'in';
+  const euro = (v) => (Math.round(v) || 0) + ' €';
+  const ago = (t) => { const s = (Date.now() - t) / 1000; return s < 90 ? "à l'instant" : s < 3600 ? `il y a ${Math.round(s / 60)} min` : s < 86400 ? `il y a ${Math.round(s / 3600)} h` : `il y a ${Math.round(s / 86400)} j`; };
+  let toastT; function toast(m) { let t = $('.toast'); if (!t) { t = h('div', { className: 'toast', role: 'status' }); document.body.append(t); } t.textContent = m; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => (t.hidden = true), 2600); }
+
+  // ---------- Compte Nova (Supabase, API REST) ----------
+  const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* stockage indisponible */ } } };
+  let session = store.get('nova_session');
+  const keep = (j) => ({ access_token: j.access_token, refresh_token: j.refresh_token, expires_at: Math.floor(Date.now() / 1000) + (j.expires_in || 3600), user: { id: j.user?.id, email: j.user?.email } });
+  async function auth(path, body) {
+    const r = await fetch(`${CFG.url}/auth/v1/${path}`, { method: 'POST', headers: { apikey: CFG.key, 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(frErr(j.error_description || j.msg || j.message || `Erreur ${r.status}`));
+    return j;
+  }
+  const frErr = (m) => /invalid login/i.test(m) ? 'E-mail ou mot de passe incorrect' : /not confirmed/i.test(m) ? "E-mail pas encore confirmé : clique sur le lien reçu par e-mail" : /already registered/i.test(m) ? 'Un compte existe déjà avec cet e-mail : connecte-toi' : /password/i.test(m) && /6/.test(m) ? 'Mot de passe : 6 caractères minimum' : m;
+  async function token() {
+    if (!session?.refresh_token) return null;
+    if (session.expires_at - 90 > Date.now() / 1000) return session.access_token;
+    try { session = keep(await auth('token?grant_type=refresh_token', { refresh_token: session.refresh_token })); store.set('nova_session', session); return session.access_token; }
+    catch { logout(); return null; }
+  }
+  async function rest(method, path, body, prefer) {
+    const t = await token(); if (!t) throw new Error('Session expirée');
+    const r = await fetch(`${CFG.url}/rest/v1/${path}`, { method, headers: { apikey: CFG.key, authorization: `Bearer ${t}`, 'content-type': 'application/json', ...(prefer ? { prefer } : {}) }, body: body ? JSON.stringify(body) : undefined });
+    const txt = await r.text(); let j = null; try { j = txt ? JSON.parse(txt) : null; } catch { /* vide */ }
+    if (!r.ok) throw new Error(j?.message || `Erreur ${r.status}`);
+    return j;
+  }
+  async function upload(path, blob) {
+    const t = await token(); if (!t) throw new Error('Session expirée');
+    const r = await fetch(`${CFG.url}/storage/v1/object/photos/${path}`, { method: 'POST', headers: { apikey: CFG.key, authorization: `Bearer ${t}`, 'content-type': 'image/jpeg', 'x-upsert': 'true' }, body: blob });
+    if (!r.ok) throw new Error('Envoi de la photo refusé (' + r.status + ')');
+  }
+  function logout() { session = null; store.set('nova_session', null); showLogin(); }
+
+  // ---------- Écran de connexion ----------
+  function showLogin() { $('#login').hidden = false; document.querySelector('.app').hidden = true; document.querySelector('.tabs').hidden = true; }
+  function showApp() { $('#login').hidden = true; document.querySelector('.app').hidden = false; document.querySelector('.tabs').hidden = false; render(); poll(); }
+  $('#lSwitch').addEventListener('click', () => { mode = mode === 'in' ? 'up' : 'in'; $('#lGo').textContent = mode === 'in' ? 'Se connecter' : 'Créer mon compte'; $('#lSwitch').textContent = mode === 'in' ? 'Pas encore de compte ? Créer un compte' : 'Déjà un compte ? Se connecter'; $('#loginSub').textContent = mode === 'in' ? "Connecte-toi avec ton compte Nova : le même que dans l'extension sur ton PC." : 'Crée ton compte Nova, puis connecte-toi avec le même dans l’extension sur ton PC.'; $('#lErr').textContent = ''; });
+  $('#lGo').addEventListener('click', async () => {
+    const email = $('#lMail').value.trim(), password = $('#lPass').value;
+    $('#lErr').textContent = ''; $('#lGo').disabled = true;
+    try {
+      if (!CFG.url || !CFG.key || CFG.url.startsWith('__')) throw new Error("L'appli n'est pas encore configurée (config.js)");
+      if (mode === 'up') {
+        const j = await auth('signup', { email, password });
+        if (!j.access_token) { $('#lErr').style.color = 'var(--ok)'; $('#lErr').textContent = 'Compte créé ! Confirme ton e-mail (lien reçu), puis connecte-toi.'; mode = 'up'; $('#lSwitch').click(); return; }
+        session = keep(j);
+      } else session = keep(await auth('token?grant_type=password', { email, password }));
+      store.set('nova_session', session); $('#lPass').value = ''; showApp();
+    } catch (e) { $('#lErr').style.color = ''; $('#lErr').textContent = e.message; }
+    finally { $('#lGo').disabled = false; }
+  });
+
+  // ---------- Photos ----------
+  function shrink(file, max = 1600, q = 0.86) {
+    return new Promise((res, rej) => {
+      const url = URL.createObjectURL(file); const img = new Image();
+      img.onload = () => { const r = Math.min(1, max / Math.max(img.width, img.height)); const c = document.createElement('canvas'); c.width = Math.round(img.width * r); c.height = Math.round(img.height * r); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); c.toBlob((b) => (b ? res({ blob: b, thumb: (() => { const t = document.createElement('canvas'); const k = 160 / Math.max(c.width, c.height); t.width = Math.round(c.width * k); t.height = Math.round(c.height * k); t.getContext('2d').drawImage(c, 0, 0, t.width, t.height); return t.toDataURL('image/jpeg', 0.7); })() }) : rej(new Error('photo illisible'))), 'image/jpeg', q); };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('photo illisible')); };
+      img.src = url;
+    });
+  }
+  const uid4 = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+  async function sendStaged() {
+    if (busy) return; busy = true; render();
+    try {
+      for (const s of staged.slice()) {
+        const folder = `${session.user.id}/${uid4()}`; const paths = []; let thumb = null;
+        for (let i = 0; i < s.files.length; i++) { const { blob, thumb: t } = await shrink(s.files[i]); if (!thumb) thumb = t; const p = `${folder}/${i + 1}.jpg`; await upload(p, blob); paths.push(p); }
+        await rest('POST', 'jobs', { photos: paths, thumb, status: 'new' });
+        staged.shift();
+      }
+      toast('Envoyé au PC ✓'); await refresh();
+    } catch (e) { toast('Envoi impossible : ' + e.message); }
+    busy = false; render();
+  }
+
+  // ---------- Synchronisation (toutes les 6 s quand l'appli est ouverte) ----------
+  async function refresh() {
+    if (!session) return;
+    try {
+      const [st, js, acts] = await Promise.all([
+        rest('GET', 'state?select=data,updated_at'),
+        rest('GET', 'jobs?select=id,status,thumb,title,sku,price,error,created_at,photos&order=created_at.desc&limit=30'),
+        rest('GET', 'actions?select=key,status,error&order=created_at.desc&limit=50'),
+      ]);
+      state = st?.[0] ? { ...st[0].data, updatedAt: new Date(st[0].updated_at).getTime() } : null;
+      jobs = (js || []).map((j) => ({ ...j, createdAt: new Date(j.created_at).getTime() }));
+      actions = {}; (acts || []).reverse().forEach((a) => { actions[a.key] = { status: a.status, error: a.error }; });
+      if (!busy && !document.activeElement?.matches('textarea')) render(); else renderHeader();
+    } catch (e) { if (/session/i.test(e.message)) logout(); }
+  }
+  let pollT; function poll() { clearInterval(pollT); refresh(); pollT = setInterval(() => { if (!document.hidden) refresh(); }, 6000); }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && session) refresh(); });
+
+  async function doAction(key, type, payload) {
+    actions[key] = { status: 'new' }; render();
+    try { await rest('POST', 'actions', { key, type, payload, status: 'new' }); toast('Envoyé au PC'); }
+    catch (e) { actions[key] = { status: 'error', error: e.message }; render(); }
+  }
+  // ---------- Vues ----------
+  function render() {
+    document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.tab === tab));
+    const v = $('#view'); v.replaceChildren();
+    if (tab === 'photos') viewPhotos(v);
+    if (tab === 'drafts') viewDrafts(v);
+    if (tab === 'messages') viewMessages(v);
+    if (tab === 'ventes') viewVentes(v);
+    if (tab === 'photos') v.append(h('div', { className: 'me' }, h('span', { textContent: '👤 ' + (session?.user?.email || '') }), (() => { const b = h('button', { className: 'linkbtn', textContent: 'Se déconnecter' }); b.addEventListener('click', logout); return b; })()));
+    renderHeader();
+  }
+
+  function renderHeader() {
+    const s = state;
+    const fresh = s && Date.now() - (s.updatedAt || 0) < 6 * 60000;
+    $('#pcStatus').className = 'pc ' + (s ? (fresh ? 'on' : 'off') : '');
+    $('#pcText').textContent = !s ? 'PC jamais vu' : fresh ? 'PC en ligne' : 'PC hors ligne';
+    $('#kShip').textContent = s?.stats?.toShip ?? '–';
+    $('#kDrafts').textContent = s?.stats?.drafts ?? '–';
+    $('#kOnline').textContent = s?.stats?.online ?? '–';
+    $('#kMonth').textContent = s?.stats ? euro(s.stats.month) : '–';
+    $('#captcha').hidden = !s?.captcha;
+    const badge = (id, n) => { const t = $(id); t.querySelector('.n')?.remove(); if (n) t.append(h('span', { className: 'n', textContent: n })); };
+    badge('#tabDrafts', s?.drafts?.length || 0);
+    badge('#tabMessages', s?.aiQueue?.length || 0);
+    badge('#tabVentes', s?.stats?.toShip || 0);
+    badge('#tabPhotos', jobs.filter((j) => j.status === 'new' || j.status === 'pc').length);
+  }
+
+  function viewPhotos(v) {
+    const input = h('input', { type: 'file', accept: 'image/*', multiple: true, id: 'pickInput', 'aria-label': 'Choisir les photos' });
+    input.addEventListener('change', async () => {
+      const files = [...input.files]; input.value = '';
+      if (!files.length) return;
+      staged.push({ files, urls: files.map((f) => URL.createObjectURL(f)) });
+      render();
+    });
+    v.append(
+      h('h2', { textContent: 'Nouvel article' }),
+      h('p', { className: 'sub', textContent: "Une sélection = un article. Prends face, dos et étiquettes, ajoute autant d'articles que tu veux, puis envoie tout au PC." }),
+      h('label', { className: 'pick' }, input, h('span', { className: 'ico', textContent: '📷' }), h('b', { textContent: 'Prendre ou choisir des photos' }), h('span', { className: 'sub', textContent: 'Appareil photo ou galerie' })),
+    );
+    if (staged.length) {
+      v.append(h('div', { className: 'staged' }, staged.map((s, i) => {
+        const x = h('button', { className: 'x', textContent: '✕', 'aria-label': 'Retirer cet article' });
+        x.addEventListener('click', () => { staged.splice(i, 1); render(); });
+        return h('div', { className: 'item' }, h('div', { className: 'thumbs' }, s.urls.map((u) => h('img', { src: u, alt: '' }))), x);
+      })));
+      const send = h('button', { className: 'btn primary', disabled: busy, textContent: busy ? 'Envoi en cours…' : `Envoyer ${staged.length} article${staged.length > 1 ? 's' : ''} au PC` });
+      send.addEventListener('click', sendStaged);
+      v.append(send);
+    }
+    v.append(h('h2', { textContent: 'Derniers envois' }));
+    const recent = jobs.slice(0, 20);
+    if (!recent.length) v.append(h('div', { className: 'empty' }, h('b', { textContent: 'Aucun article envoyé' }), 'Tes articles apparaîtront ici avec leur statut : envoyé, analysé, brouillon Vinted créé.'));
+    else v.append(h('div', { className: 'list' }, recent.map(jobRow)));
+    if (!state) v.append(h('div', { className: 'card help' }, h('b', { textContent: 'Relier ton PC (une seule fois)' }), h('ol', {}, h('li', { textContent: 'Sur ton PC, ouvre Nova Resell → ⚙︎ → « Compte Nova ».' }), h('li', { textContent: 'Connecte-toi avec le même e-mail et mot de passe qu\u2019ici.' }), h('li', { textContent: "La pastille en haut passe à « PC en ligne » : tes envois sont traités." }))));
+  }
+
+  const ST = { new: ['En attente du PC', 'warn'], pc: ['Analyse sur le PC…', 'run'], draft: ['Brouillon Vinted ✓', 'ok'], done: ['Terminé', 'ok'], error: ['Erreur', 'err'] };
+  function jobRow(j) {
+    const [label, cls] = ST[j.status] || ['…', ''];
+    const s = h('div', { className: 's' }, h('span', { className: 'pill ' + cls }, j.status === 'pc' ? h('span', { className: 'spin' }) : null, ' ' + label), ' · ' + ago(j.createdAt));
+    return h('div', { className: 'li' }, j.thumb ? h('img', { src: j.thumb, alt: '' }) : h('img', { alt: '' }),
+      h('div', { className: 'meta' }, h('div', { className: 't', textContent: j.title || `${j.photos?.length || 0} photo(s)` }),
+        j.sku ? h('div', { className: 's' }, h('span', { className: 'sku', textContent: j.sku }), j.price ? euro(j.price) : '') : null,
+        j.error ? h('div', { className: 's', textContent: j.error }) : null, s));
+  }
+
+  function viewDrafts(v) {
+    v.append(h('h2', { textContent: 'Brouillons Vinted' }), h('p', { className: 'sub', textContent: 'Vérifie puis publie : ton PC exécute la publication sur Vinted.' }));
+    const list = state?.drafts || [];
+    if (!list.length) return v.append(h('div', { className: 'empty' }, h('b', { textContent: 'Aucun brouillon' }), state ? 'Envoie des photos depuis l’onglet Photos.' : 'Les brouillons apparaîtront quand ton PC sera relié.'));
+    v.append(h('div', { className: 'list' }, list.map((d) => {
+      const a = actions['pub-' + d.id];
+      const b = h('button', { className: 'btn small primary', textContent: a ? (a.status === 'done' ? 'Publié ✓' : a.status === 'error' ? 'Réessayer' : 'Envoi…') : 'Publier', disabled: a && a.status !== 'error' });
+      b.addEventListener('click', () => doAction('pub-' + d.id, 'publishDraft', { id: d.id }));
+      return h('div', { className: 'li' }, h('div', { className: 'meta' }, h('div', { className: 't', textContent: d.title }), h('div', { className: 's', textContent: [euro(d.price), d.brand, d.size].filter(Boolean).join(' · ') }), a?.error ? h('div', { className: 's', textContent: a.error }) : null), b);
+    })));
+  }
+
+  function viewMessages(v) {
+    v.append(h('h2', { textContent: "Réponses de l'agent IA" }), h('p', { className: 'sub', textContent: "Les réponses proposées par l'agent (mode « Je valide »). Modifie si besoin puis envoie." }));
+    const q = state?.aiQueue || [];
+    if (!q.length) return v.append(h('div', { className: 'empty' }, h('b', { textContent: 'Rien à valider' }), "Active l'agent IA en mode « Je valide » dans l'extension pour recevoir ses propositions ici."));
+    q.forEach((m) => {
+      const key = 'ai-' + m.conversationId + '-' + m.lastId; const a = actions[key];
+      const ta = h('textarea', { rows: 3, value: m.message, id: 'ta-' + key });
+      const b = h('button', { className: 'btn small primary', textContent: a ? (a.status === 'done' ? 'Envoyé ✓' : a.status === 'error' ? 'Réessayer' : 'Envoi…') : (m.offerPrice ? `Envoyer + offre ${m.offerPrice} €` : 'Envoyer'), disabled: a && a.status !== 'error' });
+      b.addEventListener('click', () => doAction(key, 'aiSend', { conversationId: m.conversationId, lastId: m.lastId, body: ta.value, offerPrice: m.offerPrice || null, transactionId: m.transactionId || null }));
+      v.append(h('div', { className: 'card' }, h('div', { className: 'row' }, h('b', { textContent: '@' + m.pseudo }), h('span', { className: 'sub grow', textContent: m.article })), h('div', { className: 'q', textContent: '« ' + m.question + ' »' }), ta, a?.error ? h('div', { className: 'sub', textContent: a.error }) : null, h('div', { className: 'row' }, b)));
+    });
+  }
+
+  function viewVentes(v) {
+    v.append(h('h2', { textContent: 'Ventes à expédier' }), h('p', { className: 'sub', textContent: 'Avec les SKU pour retrouver les articles. Les bordereaux s’impriment depuis le PC.' }));
+    const list = state?.sales || [];
+    if (!list.length) v.append(h('div', { className: 'empty' }, h('b', { textContent: 'Rien à expédier 🎉' }), 'Les nouvelles ventes apparaîtront ici.'));
+    else {
+      v.append(h('div', { className: 'list' }, list.map((o) => h('div', { className: 'li' }, h('div', { className: 'meta' }, h('div', { className: 't', textContent: o.title }), h('div', { className: 's' }, (o.skus || []).map((s) => h('span', { className: 'sku', textContent: s })), ' ' + euro(o.price) + ' · ' + (o.statusTitle || '').trim()))))));
+      const a = actions['print'];
+      const b = h('button', { className: 'btn', textContent: a ? (a.status === 'done' ? 'Ouvert sur le PC ✓' : a.status === 'error' ? 'Réessayer' : 'Envoi…') : '🖨️ Préparer les bordereaux sur le PC', disabled: a && a.status !== 'error' && a.status !== 'done' });
+      b.addEventListener('click', () => doAction('print', 'printLabels', {}));
+      v.append(b);
+    }
+    if (state?.stats) v.append(h('div', { className: 'card' }, h('b', { textContent: 'Ce mois-ci' }), h('div', { className: 'sub', textContent: `${euro(state.stats.month)} de ventes · ${state.stats.online} annonces en ligne · ${state.stats.drafts} brouillons` }), state.updatedAt ? h('div', { className: 'sub', textContent: 'Mis à jour ' + ago(state.updatedAt) }) : null));
+  }
+
+
+  // ---------- Démarrage ----------
+  document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => { tab = t.dataset.tab; render(); }));
+  if (session?.refresh_token) showApp(); else showLogin();
+})();
+</script>
+</body>
+</html>
