@@ -101,10 +101,10 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
 @media (prefers-reduced-motion: reduce) { .spin { animation: none; } }
 
 /* Barre d'onglets en bas */
-.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: grid; grid-template-columns: repeat(4, 1fr);
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: grid; grid-template-columns: repeat(6, 1fr);
   padding-top: 6px; padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px));
   background: rgba(10,16,34,.92); backdrop-filter: blur(14px); border-top: 1px solid var(--line); }
-.tab { border: 0; background: none; display: grid; justify-items: center; gap: 2px; padding: 6px 0; font-size: 11px; font-weight: 600; color: var(--muted); position: relative; }
+.tab { border: 0; background: none; display: grid; justify-items: center; gap: 2px; padding: 6px 0; font-size: 10px; min-width: 0; letter-spacing: -.1px; font-weight: 600; color: var(--muted); position: relative; }
 .tab .i { font-size: 21px; filter: grayscale(1); opacity: .75; }
 .tab.active { color: var(--text); } .tab.active .i { filter: none; opacity: 1; }
 .tab.active::before { content: ''; position: absolute; top: -7px; left: 30%; right: 30%; height: 3px; border-radius: 0 0 4px 4px; background: var(--grad); box-shadow: 0 0 12px rgba(34,211,238,.7); }
@@ -131,6 +131,11 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
 .err.ok { color: var(--ok); }
 .plan { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
 .plan input { flex: 1 1 180px; min-width: 0; font: inherit; font-size: 16px; color: var(--text); background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 9px 10px; color-scheme: dark; }
+.li.ret { border-left: 3px solid var(--err); align-items: flex-start; }
+.li .s.eta { color: var(--cyan); font-weight: 600; }
+.li .s.step { color: var(--text); }
+.pill.err { background: rgba(248,113,113,.15); color: var(--err); }
+.segm { margin-bottom: 4px; }
 .li-wrap { display: grid; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 0 0 10px; }
 .li-wrap > .li { border: 0; background: transparent; }
 .li-wrap > .plan { margin: 0 12px; }
@@ -175,6 +180,8 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
 <nav class="tabs" aria-label="Sections">
   <button class="tab active" data-tab="photos" id="tabPhotos"><span class="i">📸</span>Photos</button>
   <button class="tab" data-tab="drafts" id="tabDrafts"><span class="i">📝</span>Brouillons</button>
+  <button class="tab" data-tab="repost" id="tabRepost"><span class="i">🔁</span>Republier</button>
+  <button class="tab" data-tab="favs" id="tabFavs"><span class="i">❤️</span>Favoris</button>
   <button class="tab" data-tab="messages" id="tabMessages"><span class="i">💬</span>Messages</button>
   <button class="tab" data-tab="ventes" id="tabVentes"><span class="i">📦</span>Ventes</button>
 </nav>
@@ -352,6 +359,8 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
     if (tab === 'photos') viewPhotos(v);
     if (tab === 'drafts') viewDrafts(v);
     if (tab === 'messages') viewMessages(v);
+    if (tab === 'repost') viewRepost(v);
+    if (tab === 'favs') viewFavs(v);
     if (tab === 'ventes') viewVentes(v);
     if (tab === 'photos') v.append(h('div', { className: 'me' }, h('span', { textContent: '👤 ' + (session?.user?.email || '') }), (() => { const b = h('button', { className: 'linkbtn', textContent: 'Se déconnecter' }); b.addEventListener('click', logout); return b; })()));
     renderHeader();
@@ -370,7 +379,9 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
     const badge = (id, n) => { const t = $(id); t.querySelector('.n')?.remove(); if (n) t.append(h('span', { className: 'n', textContent: n })); };
     badge('#tabDrafts', s?.drafts?.length || 0);
     badge('#tabMessages', s?.aiQueue?.length || 0);
-    badge('#tabVentes', s?.stats?.toShip || 0);
+    badge('#tabVentes', (s?.stats?.toShip || 0) + (s?.returns?.length || 0));
+    badge('#tabRepost', (s?.repostItems || []).filter((i) => i.due).length);
+    badge('#tabFavs', s?.favs?.length || 0);
     badge('#tabPhotos', jobs.filter((j) => j.status === 'new' || j.status === 'pc').length);
   }
 
@@ -448,7 +459,7 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
         when ? h('div', { className: 's' }, h('span', { className: 'pill plan-on', textContent: '🕒 ' + fmtWhen(when) + (pending ? ' (envoi au PC…)' : '') })) : null,
         d.schedError ? h('div', { className: 's', textContent: '⚠︎ Planification échouée : ' + d.schedError }) : null,
         a?.error ? h('div', { className: 's', textContent: a.error }) : null);
-      const row = h('div', { className: 'li' }, meta, h('div', { className: 'row' }, pb, b));
+      const row = h('div', { className: 'li' }, d.photo ? h('img', { src: d.photo, alt: '', loading: 'lazy' }) : null, meta, h('div', { className: 'row' }, pb, b));
       return picker ? h('div', { className: 'li-wrap' }, row, picker) : row;
     })));
   }
@@ -466,18 +477,86 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
     });
   }
 
+  const fmtDay = (t) => new Date(t).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+  function etaText(e) {
+    if (!e) return '';
+    const same = new Date(e.from).toDateString() === new Date(e.to).toDateString();
+    const days = Math.round((new Date(e.to).setHours(12) - new Date().setHours(12)) / 86400000);
+    return (same ? fmtDay(e.from) : `${fmtDay(e.from)} → ${fmtDay(e.to)}`) + (days < 0 ? ' (dépassée)' : days === 0 ? " (aujourd'hui)" : days === 1 ? ' (demain)' : ` (dans ${days} j)`);
+  }
+  const RET_TYPE = { snad: 'Article non conforme', damaged: 'Article endommagé', not_received: 'Colis non reçu' };
+  const thumb = (src) => src ? h('img', { src, alt: '', loading: 'lazy' }) : h('img', { alt: '' });
+  const skuChips = (o) => (o.skus || []).map((s) => h('span', { className: 'sku', textContent: s }));
   function viewVentes(v) {
-    v.append(h('h2', { textContent: 'Ventes à expédier' }), h('p', { className: 'sub', textContent: 'Avec les SKU pour retrouver les articles. Les bordereaux s’impriment depuis le PC.' }));
-    const list = state?.sales || [];
+    const list = state?.sales || [], rets = state?.returns || [], transit = state?.transit || [];
+    v.append(h('h2', { textContent: 'À expédier' }));
     if (!list.length) v.append(h('div', { className: 'empty' }, h('b', { textContent: 'Rien à expédier 🎉' }), 'Les nouvelles ventes apparaîtront ici.'));
     else {
-      v.append(h('div', { className: 'list' }, list.map((o) => h('div', { className: 'li' }, h('div', { className: 'meta' }, h('div', { className: 't', textContent: o.title }), h('div', { className: 's' }, (o.skus || []).map((s) => h('span', { className: 'sku', textContent: s })), ' ' + euro(o.price) + ' · ' + (o.statusTitle || '').trim()))))));
+      v.append(h('div', { className: 'list' }, list.map((o) => h('div', { className: 'li' }, thumb(o.photo), h('div', { className: 'meta' }, h('div', { className: 't', textContent: o.title }), h('div', { className: 's' }, skuChips(o), ' ' + euro(o.price)))))));
       const a = actions['print'];
       const b = h('button', { className: 'btn', textContent: a ? (a.status === 'done' ? 'Ouvert sur le PC ✓' : a.status === 'error' ? 'Réessayer' : 'Envoi…') : '🖨️ Préparer les bordereaux sur le PC', disabled: a && a.status !== 'error' && a.status !== 'done' });
       b.addEventListener('click', () => doAction('print', 'printLabels', {}));
       v.append(b);
     }
+    if (rets.length) {
+      v.append(h('h2', { textContent: '↩️ Retours en cours' }));
+      v.append(h('div', { className: 'list' }, rets.map((o) => h('div', { className: 'li ret' }, thumb(o.photo), h('div', { className: 'meta' },
+        h('div', { className: 't', textContent: o.title }),
+        h('div', { className: 's' }, skuChips(o), ' ' + euro(o.price) + ' · ', h('span', { className: 'pill err', textContent: RET_TYPE[o.type] || 'Retour' })),
+        h('div', { className: 's step', textContent: '➜ ' + (o.step || 'Retour en cours') }),
+        h('div', { className: 's eta', textContent: o.eta ? '📅 Arrivée du colis retour : ' + etaText(o.eta) : "📅 Date d'arrivée : dès que l'acheteur aura expédié" }))))));
+    }
+    if (transit.length) {
+      v.append(h('h2', { textContent: '🚚 En route vers l’acheteur' }));
+      v.append(h('div', { className: 'list' }, transit.map((o) => h('div', { className: 'li' }, thumb(o.photo), h('div', { className: 'meta' },
+        h('div', { className: 't', textContent: o.title }), h('div', { className: 's' }, skuChips(o), ' ' + euro(o.price)),
+        h('div', { className: 's eta', textContent: '📅 Livraison estimée : ' + etaText(o.eta) }))))));
+    }
     if (state?.stats) v.append(h('div', { className: 'card' }, h('b', { textContent: 'Ce mois-ci' }), h('div', { className: 'sub', textContent: `${euro(state.stats.month)} de ventes · ${state.stats.online} annonces en ligne · ${state.stats.drafts} brouillons` }), state.updatedAt ? h('div', { className: 'sub', textContent: 'Mis à jour ' + ago(state.updatedAt) }) : null));
+  }
+
+  let repostAll = false;
+  function viewRepost(v) {
+    const all = state?.repostItems || [];
+    const due = all.filter((i) => i.due);
+    const disc = state?.repostDiscount || 0;
+    v.append(h('h2', { textContent: 'Republier' }), h('p', { className: 'sub', textContent: `Ton PC copie l'annonce (photos comprises), la remet en ligne${disc ? ` à -${disc} %` : ''} puis supprime l'ancienne. Une à la fois, environ toutes les 30 s.` }));
+    const seg = h('div', { className: 'row segm' }, ...[['À republier (' + due.length + ')', false], ['Toutes (' + all.length + ')', true]].map(([t, val]) => { const b = h('button', { className: 'btn small' + (repostAll === val ? ' primary' : ''), textContent: t }); b.addEventListener('click', () => { repostAll = val; render(); }); return b; }));
+    v.append(seg);
+    const shown = repostAll ? all : due;
+    if (!shown.length) return v.append(h('div', { className: 'empty' }, h('b', { textContent: state ? 'Rien à republier 👌' : 'PC pas encore relié' }), state ? 'Aucune annonce assez ancienne pour le moment.' : 'La liste apparaîtra quand ton PC sera relié.'));
+    v.append(h('div', { className: 'list' }, shown.map((i) => {
+      const a = actions['rep-' + i.id];
+      const b = h('button', { className: 'btn small primary', textContent: a ? (a.status === 'done' ? 'Republiée ✓' : a.status === 'error' ? 'Réessayer' : 'En file…') : 'Republier', disabled: a && a.status !== 'error' });
+      b.addEventListener('click', () => {
+        if (!confirm(`Republier « ${i.title} » ?${i.favs ? `\nSes ${i.favs} favoris seront perdus.` : ''}`)) return;
+        doAction('rep-' + i.id, 'repost', { id: i.id, price: i.price });
+      });
+      return h('div', { className: 'li' }, thumb(i.photo), h('div', { className: 'meta' }, h('div', { className: 't', textContent: i.title }),
+        h('div', { className: 's', textContent: [euro(i.price), i.days != null ? `en ligne depuis ${i.days} j` : '', `❤️ ${i.favs || 0}`, `👁 ${i.views || 0}`].filter(Boolean).join(' · ') }),
+        a?.error ? h('div', { className: 's', textContent: a.error }) : null), b);
+    })));
+  }
+
+  function viewFavs(v) {
+    const list = state?.favs || [];
+    v.append(h('h2', { textContent: 'Favoris' }), h('p', { className: 'sub', textContent: "Envoie ton message + une offre remisée aux personnes qui ont mis tes articles en favori (message et remise réglés dans l'extension). Un envoi environ toutes les 30 s." }));
+    if (!list.length) return v.append(h('div', { className: 'empty' }, h('b', { textContent: 'Aucun nouveau favori' }), state ? 'Tous tes favoris ont déjà reçu un message.' : 'La liste apparaîtra quand ton PC sera relié.'));
+    const key = (f) => `fav-${f.itemId}-${f.userId}`;
+    const todo = list.filter((f) => !actions[key(f)] || actions[key(f)].status === 'error');
+    if (todo.length > 1) {
+      const all = h('button', { className: 'btn primary', textContent: `Envoyer à tous (${todo.length})` });
+      all.addEventListener('click', async () => { if (!confirm(`Envoyer ton message à ${todo.length} personne(s) ?`)) return; for (const f of todo) await doAction(key(f), 'favSend', { itemId: f.itemId, userId: f.userId, pseudo: f.pseudo }); });
+      v.append(all);
+    }
+    v.append(h('div', { className: 'list' }, list.map((f) => {
+      const a = actions[key(f)];
+      const b = h('button', { className: 'btn small primary', textContent: a ? (a.status === 'done' ? 'Envoyé ✓' : a.status === 'error' ? 'Réessayer' : 'En file…') : 'Envoyer', disabled: a && a.status !== 'error' });
+      b.addEventListener('click', () => doAction(key(f), 'favSend', { itemId: f.itemId, userId: f.userId, pseudo: f.pseudo }));
+      return h('div', { className: 'li' }, thumb(f.photo), h('div', { className: 'meta' }, h('div', { className: 't', textContent: '@' + f.pseudo }),
+        h('div', { className: 's', textContent: f.title }), h('div', { className: 's' }, h('s', { textContent: euro(f.price) }), ' → ', h('b', { textContent: euro(f.remise) })),
+        a?.error ? h('div', { className: 's', textContent: a.error }) : null), b);
+    })));
   }
 
 
