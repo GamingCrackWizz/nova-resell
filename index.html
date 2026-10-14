@@ -127,6 +127,14 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
 .field input:focus { outline: none; border-color: var(--indigo); box-shadow: 0 0 0 3px rgba(129,140,248,.25); }
 .err { color: var(--err); text-align: center; font-size: 13.5px; min-height: 18px; }
 .linkbtn { border: 0; background: none; color: var(--cyan); font-weight: 600; padding: 6px; }
+.linkbtn.small { font-size: 13.5px; color: var(--muted); font-weight: 500; }
+.err.ok { color: var(--ok); }
+.plan { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
+.plan input { flex: 1 1 180px; min-width: 0; font: inherit; font-size: 16px; color: var(--text); background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 9px 10px; color-scheme: dark; }
+.li-wrap { display: grid; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 0 0 10px; }
+.li-wrap > .li { border: 0; background: transparent; }
+.li-wrap > .plan { margin: 0 12px; }
+.pill.plan-on { background: rgba(129,140,248,.16); color: var(--indigo); }
 .me { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); }
 </style>
 </head>
@@ -137,9 +145,11 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
     <h1>Nova <span>Resell</span></h1>
     <p id="loginSub">Connecte-toi avec ton compte Nova : le même que dans l'extension sur ton PC.</p>
     <label class="field">E-mail<input id="lMail" type="email" autocomplete="username" inputmode="email"></label>
-    <label class="field">Mot de passe<input id="lPass" type="password" autocomplete="current-password"></label>
+    <label class="field" id="lPassWrap">Mot de passe<input id="lPass" type="password" autocomplete="current-password"></label>
+    <label class="field" id="lPass2Wrap" hidden>Confirme le mot de passe<input id="lPass2" type="password" autocomplete="new-password"></label>
     <button class="btn primary" id="lGo">Se connecter</button>
-    <div class="err" id="lErr"></div>
+    <div class="err" id="lErr" role="alert"></div>
+    <button class="linkbtn small" id="lForgot">Mot de passe oublié ?</button>
     <button class="linkbtn" id="lSwitch">Pas encore de compte ? Créer un compte</button>
   </div>
 </div>
@@ -190,7 +200,7 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
     if (!r.ok) throw new Error(frErr(j.error_description || j.msg || j.message || `Erreur ${r.status}`));
     return j;
   }
-  const frErr = (m) => /invalid login/i.test(m) ? 'E-mail ou mot de passe incorrect' : /not confirmed/i.test(m) ? "E-mail pas encore confirmé : clique sur le lien reçu par e-mail" : /already registered/i.test(m) ? 'Un compte existe déjà avec cet e-mail : connecte-toi' : /password/i.test(m) && /6/.test(m) ? 'Mot de passe : 6 caractères minimum' : m;
+  const frErr = (m) => /invalid login/i.test(m) ? 'E-mail ou mot de passe incorrect' : /not confirmed/i.test(m) ? "E-mail pas encore confirmé : clique sur le lien reçu par e-mail" : /already (registered|exists)/i.test(m) ? 'Un compte existe déjà avec cet e-mail : connecte-toi' : /rate limit|too many|security purposes/i.test(m) ? 'Trop de demandes : attends quelques minutes puis réessaie' : /same.*password|different from the old/i.test(m) ? "Choisis un mot de passe différent de l'ancien" : /password/i.test(m) && /6|short|least/i.test(m) ? 'Mot de passe : 6 caractères minimum' : m;
   async function token() {
     if (!session?.refresh_token) return null;
     if (session.expires_at - 90 > Date.now() / 1000) return session.access_token;
@@ -214,21 +224,79 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
   // ---------- Écran de connexion ----------
   function showLogin() { $('#login').hidden = false; document.querySelector('.app').hidden = true; document.querySelector('.tabs').hidden = true; }
   function showApp() { $('#login').hidden = true; document.querySelector('.app').hidden = false; document.querySelector('.tabs').hidden = false; render(); poll(); }
-  $('#lSwitch').addEventListener('click', () => { mode = mode === 'in' ? 'up' : 'in'; $('#lGo').textContent = mode === 'in' ? 'Se connecter' : 'Créer mon compte'; $('#lSwitch').textContent = mode === 'in' ? 'Pas encore de compte ? Créer un compte' : 'Déjà un compte ? Se connecter'; $('#loginSub').textContent = mode === 'in' ? "Connecte-toi avec ton compte Nova : le même que dans l'extension sur ton PC." : 'Crée ton compte Nova, puis connecte-toi avec le même dans l’extension sur ton PC.'; $('#lErr').textContent = ''; });
+  // modes : in (connexion) · up (création) · forgot (e-mail de réinitialisation) · reset (nouveau mot de passe)
+  function setMode(m) {
+    mode = m;
+    const T = {
+      in: ['Se connecter', "Connecte-toi avec ton compte Nova : le même que dans l'extension sur ton PC.", 'Pas encore de compte ? Créer un compte'],
+      up: ['Créer mon compte', "Crée ton compte Nova, puis connecte-toi avec le même dans l'extension sur ton PC.", 'Déjà un compte ? Se connecter'],
+      forgot: ['Recevoir le lien par e-mail', "Indique l'e-mail de ton compte : tu vas recevoir un lien pour choisir un nouveau mot de passe.", 'Retour à la connexion'],
+      reset: ['Enregistrer le mot de passe', 'Choisis ton nouveau mot de passe (6 caractères minimum).', 'Annuler'],
+    }[m];
+    $('#lGo').textContent = T[0]; $('#loginSub').textContent = T[1]; $('#lSwitch').textContent = T[2];
+    $('#lMail').closest('label').hidden = m === 'reset';
+    $('#lPassWrap').hidden = m === 'forgot';
+    $('#lPass2Wrap').hidden = !(m === 'up' || m === 'reset');
+    $('#lPassWrap').firstChild.textContent = m === 'reset' ? 'Nouveau mot de passe' : 'Mot de passe';
+    $('#lPass').autocomplete = m === 'in' ? 'current-password' : 'new-password';
+    $('#lForgot').hidden = m !== 'in';
+    $('#lErr').textContent = ''; $('#lErr').classList.remove('ok');
+  }
+  const okMsg = (m) => { $('#lErr').textContent = m; $('#lErr').classList.add('ok'); };
+  $('#lSwitch').addEventListener('click', () => { if (mode === 'reset') history.replaceState(null, '', location.pathname); setMode(mode === 'in' ? 'up' : 'in'); });
+  $('#lForgot').addEventListener('click', () => setMode('forgot'));
   $('#lGo').addEventListener('click', async () => {
     const email = $('#lMail').value.trim(), password = $('#lPass').value;
-    $('#lErr').textContent = ''; $('#lGo').disabled = true;
+    $('#lErr').textContent = ''; $('#lErr').classList.remove('ok'); $('#lGo').disabled = true;
     try {
       if (!CFG.url || !CFG.key || CFG.url.startsWith('__')) throw new Error("L'appli n'est pas encore configurée (config.js)");
+      if (mode !== 'reset' && !/^\S+@\S+\.\S+$/.test(email)) throw new Error('Adresse e-mail invalide');
+      if (mode === 'forgot') {
+        const r = await fetch(`${CFG.url}/auth/v1/recover?redirect_to=${encodeURIComponent(location.origin + location.pathname)}`, { method: 'POST', headers: { apikey: CFG.key, 'content-type': 'application/json' }, body: JSON.stringify({ email }) });
+        if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(frErr(j.msg || j.error_description || j.message || `Erreur ${r.status}`)); }
+        okMsg(`📧 E-mail envoyé à ${email}. Ouvre le lien (vérifie les spams) pour choisir un nouveau mot de passe.`);
+        return;
+      }
+      if (password.length < 6) throw new Error('Mot de passe : 6 caractères minimum');
+      if ((mode === 'up' || mode === 'reset') && password !== $('#lPass2').value) throw new Error('Les deux mots de passe ne sont pas identiques');
+      if (mode === 'reset') {
+        const r = await fetch(`${CFG.url}/auth/v1/user`, { method: 'PUT', headers: { apikey: CFG.key, authorization: `Bearer ${session.access_token}`, 'content-type': 'application/json' }, body: JSON.stringify({ password }) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(frErr(j.msg || j.error_description || j.message || `Erreur ${r.status}`));
+        session.user = { id: j.id || session.user?.id, email: j.email || session.user?.email };
+        store.set('nova_session', session); history.replaceState(null, '', location.pathname);
+        $('#lPass').value = ''; $('#lPass2').value = '';
+        toast('Mot de passe changé ✓ Reconnecte-toi aussi sur le PC.'); showApp(); return;
+      }
       if (mode === 'up') {
         const j = await auth('signup', { email, password });
-        if (!j.access_token) { $('#lErr').style.color = 'var(--ok)'; $('#lErr').textContent = 'Compte créé ! Confirme ton e-mail (lien reçu), puis connecte-toi.'; mode = 'up'; $('#lSwitch').click(); return; }
+        if (!j.access_token) { setMode('in'); okMsg('Compte créé ! Confirme ton e-mail (lien reçu), puis connecte-toi.'); return; }
         session = keep(j);
       } else session = keep(await auth('token?grant_type=password', { email, password }));
-      store.set('nova_session', session); $('#lPass').value = ''; showApp();
-    } catch (e) { $('#lErr').style.color = ''; $('#lErr').textContent = e.message; }
+      store.set('nova_session', session); $('#lPass').value = ''; $('#lPass2').value = ''; showApp();
+    } catch (e) { $('#lErr').classList.remove('ok'); $('#lErr').textContent = e.message; }
     finally { $('#lGo').disabled = false; }
   });
+
+  // Retour depuis le lien « mot de passe oublié » reçu par e-mail
+  function handleAuthLink() {
+    const h = new URLSearchParams(location.hash.slice(1));
+    if (h.get('error_description') || h.get('error')) {
+      history.replaceState(null, '', location.pathname);
+      showLogin(); setMode('forgot');
+      $('#lErr').textContent = /expired|invalid/i.test(h.get('error_code') || h.get('error_description') || '') ? 'Ce lien a expiré ou a déjà servi : redemande un e-mail.' : (h.get('error_description') || 'Lien invalide').replace(/\+/g, ' ');
+      return true;
+    }
+    if (h.get('access_token') && h.get('type') === 'recovery') {
+      session = { access_token: h.get('access_token'), refresh_token: h.get('refresh_token'), expires_at: Number(h.get('expires_at')) || Math.floor(Date.now() / 1000) + Number(h.get('expires_in') || 3600), user: session?.user || {} };
+      showLogin(); setMode('reset'); return true;
+    }
+    if (h.get('access_token')) { // lien de confirmation d'inscription
+      session = { access_token: h.get('access_token'), refresh_token: h.get('refresh_token'), expires_at: Number(h.get('expires_at')) || Math.floor(Date.now() / 1000) + 3600, user: {} };
+      store.set('nova_session', session); history.replaceState(null, '', location.pathname); return false;
+    }
+    return false;
+  }
 
   // ---------- Photos ----------
   function shrink(file, max = 1600, q = 0.86) {
@@ -261,11 +329,11 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
       const [st, js, acts] = await Promise.all([
         rest('GET', 'state?select=data,updated_at'),
         rest('GET', 'jobs?select=id,status,thumb,title,sku,price,error,created_at,photos&order=created_at.desc&limit=30'),
-        rest('GET', 'actions?select=key,status,error&order=created_at.desc&limit=50'),
+        rest('GET', 'actions?select=key,status,error,payload&order=created_at.desc&limit=50'),
       ]);
       state = st?.[0] ? { ...st[0].data, updatedAt: new Date(st[0].updated_at).getTime() } : null;
       jobs = (js || []).map((j) => ({ ...j, createdAt: new Date(j.created_at).getTime() }));
-      actions = {}; (acts || []).reverse().forEach((a) => { actions[a.key] = { status: a.status, error: a.error }; });
+      actions = {}; (acts || []).reverse().forEach((a) => { actions[a.key] = { status: a.status, error: a.error, at: a.payload?.at ?? null }; });
       if (!busy && !document.activeElement?.matches('textarea')) render(); else renderHeader();
     } catch (e) { if (/session/i.test(e.message)) logout(); }
   }
@@ -273,7 +341,7 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
   document.addEventListener('visibilitychange', () => { if (!document.hidden && session) refresh(); });
 
   async function doAction(key, type, payload) {
-    actions[key] = { status: 'new' }; render();
+    actions[key] = { status: 'new', at: payload?.at ?? null }; render();
     try { await rest('POST', 'actions', { key, type, payload, status: 'new' }); toast('Envoyé au PC'); }
     catch (e) { actions[key] = { status: 'error', error: e.message }; render(); }
   }
@@ -307,7 +375,7 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
   }
 
   function viewPhotos(v) {
-    const input = h('input', { type: 'file', accept: 'image/*', multiple: true, id: 'pickInput', 'aria-label': 'Choisir les photos' });
+    const input = h('input', { type: 'file', accept: 'image/*', multiple: true, id: 'pickInput', ariaLabel: 'Choisir les photos' });
     input.addEventListener('change', async () => {
       const files = [...input.files]; input.value = '';
       if (!files.length) return;
@@ -321,7 +389,7 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
     );
     if (staged.length) {
       v.append(h('div', { className: 'staged' }, staged.map((s, i) => {
-        const x = h('button', { className: 'x', textContent: '✕', 'aria-label': 'Retirer cet article' });
+        const x = h('button', { className: 'x', textContent: '✕', ariaLabel: 'Retirer cet article' });
         x.addEventListener('click', () => { staged.splice(i, 1); render(); });
         return h('div', { className: 'item' }, h('div', { className: 'thumbs' }, s.urls.map((u) => h('img', { src: u, alt: '' }))), x);
       })));
@@ -346,15 +414,42 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
         j.error ? h('div', { className: 's', textContent: j.error }) : null, s));
   }
 
+  let planOpen = null;
+  const fmtWhen = (t) => new Date(t).toLocaleString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  const toLocalInput = (t) => new Date(t - new Date(t).getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  const nextSlot = () => { const d = new Date(Date.now() + 3600e3); d.setMinutes(d.getMinutes() < 30 ? 30 : 60, 0, 0); return d.getTime(); };
   function viewDrafts(v) {
-    v.append(h('h2', { textContent: 'Brouillons Vinted' }), h('p', { className: 'sub', textContent: 'Vérifie puis publie : ton PC exécute la publication sur Vinted.' }));
+    v.append(h('h2', { textContent: 'Brouillons Vinted' }), h('p', { className: 'sub', textContent: 'Publie maintenant ou planifie une date : ton PC publie à l’heure prévue (il doit être allumé).' }));
     const list = state?.drafts || [];
     if (!list.length) return v.append(h('div', { className: 'empty' }, h('b', { textContent: 'Aucun brouillon' }), state ? 'Envoie des photos depuis l’onglet Photos.' : 'Les brouillons apparaîtront quand ton PC sera relié.'));
     v.append(h('div', { className: 'list' }, list.map((d) => {
       const a = actions['pub-' + d.id];
       const b = h('button', { className: 'btn small primary', textContent: a ? (a.status === 'done' ? 'Publié ✓' : a.status === 'error' ? 'Réessayer' : 'Envoi…') : 'Publier', disabled: a && a.status !== 'error' });
       b.addEventListener('click', () => doAction('pub-' + d.id, 'publishDraft', { id: d.id }));
-      return h('div', { className: 'li' }, h('div', { className: 'meta' }, h('div', { className: 't', textContent: d.title }), h('div', { className: 's', textContent: [euro(d.price), d.brand, d.size].filter(Boolean).join(' · ') }), a?.error ? h('div', { className: 's', textContent: a.error }) : null), b);
+      const pa = actions['plan-' + d.id];
+      const pending = pa && (pa.status === 'new' || pa.status === 'running');
+      const when = pending ? pa.at : d.scheduledAt;
+      const pb = h('button', { className: 'btn small', textContent: '🕒', ariaLabel: 'Planifier la publication' });
+      pb.addEventListener('click', () => { planOpen = planOpen === d.id ? null : d.id; render(); });
+      let picker = null;
+      if (planOpen === d.id) {
+        const inp = h('input', { type: 'datetime-local', value: toLocalInput(when || nextSlot()), min: toLocalInput(Date.now()) });
+        const ok = h('button', { className: 'btn small primary', textContent: 'Planifier' });
+        ok.addEventListener('click', () => {
+          const at = new Date(inp.value).getTime();
+          if (!at || at < Date.now() - 60000) return toast('Choisis une date dans le futur');
+          planOpen = null; doAction('plan-' + d.id, 'scheduleDraft', { id: d.id, at, title: d.title }); actions['plan-' + d.id].at = at; render();
+        });
+        const cancel = h('button', { className: 'btn small', textContent: when ? 'Annuler la date' : 'Fermer' });
+        cancel.addEventListener('click', () => { planOpen = null; if (when) { doAction('plan-' + d.id, 'scheduleDraft', { id: d.id, at: null }); actions['plan-' + d.id].at = null; } render(); });
+        picker = h('div', { className: 'plan' }, inp, ok, cancel);
+      }
+      const meta = h('div', { className: 'meta' }, h('div', { className: 't', textContent: d.title }), h('div', { className: 's', textContent: [euro(d.price), d.brand, d.size].filter(Boolean).join(' · ') }),
+        when ? h('div', { className: 's' }, h('span', { className: 'pill plan-on', textContent: '🕒 ' + fmtWhen(when) + (pending ? ' (envoi au PC…)' : '') })) : null,
+        d.schedError ? h('div', { className: 's', textContent: '⚠︎ Planification échouée : ' + d.schedError }) : null,
+        a?.error ? h('div', { className: 's', textContent: a.error }) : null);
+      const row = h('div', { className: 'li' }, meta, h('div', { className: 'row' }, pb, b));
+      return picker ? h('div', { className: 'li-wrap' }, row, picker) : row;
     })));
   }
 
@@ -388,7 +483,7 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
 
   // ---------- Démarrage ----------
   document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => { tab = t.dataset.tab; render(); }));
-  if (session?.refresh_token) showApp(); else showLogin();
+  if (!handleAuthLink()) { setMode('in'); if (session?.refresh_token) showApp(); else showLogin(); }
 })();
 </script>
 </body>
