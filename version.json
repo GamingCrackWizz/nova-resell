@@ -1,10 +1,12 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.3",
   "date": "2026-10-14",
   "notes": [
-    "Tes réglages sont sauvegardés dans ton compte Nova et récupérés automatiquement sur un nouveau PC"
+    "Mises à jour en 2 clics : Nova s'installe et redémarre tout seul",
+    "Thème au choix : Bleu nuit (par défaut), Clair ou comme Windows",
+    "Boîte à suggestions dans l'onglet Aide"
   ],
   "setup": "https://gamingcrackwizz.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://gamingcrackwizz.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.0.1"
+  "name": "V1.0.3"
 }
