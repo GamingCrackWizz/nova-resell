@@ -1,13 +1,10 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "date": "2026-10-14",
   "notes": [
-    "Première version officielle (bêta) de Nova Resell",
-    "Journal d'activité et mises à jour automatiques",
-    "Retours, dates de livraison estimées, planification des brouillons",
-    "Appli mobile : republier, favoris, photos des brouillons"
+    "Tes réglages sont sauvegardés dans ton compte Nova et récupérés automatiquement sur un nouveau PC"
   ],
   "setup": "https://gamingcrackwizz.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://gamingcrackwizz.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.0"
+  "name": "V1.0.1"
 }
