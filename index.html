@@ -488,14 +488,41 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
   const RET_TYPE = { snad: 'Article non conforme', damaged: 'Article endommagé', not_received: 'Colis non reçu' };
   const thumb = (src) => src ? h('img', { src, alt: '', loading: 'lazy' }) : h('img', { alt: '' });
   const skuChips = (o) => (o.skus || []).map((s) => h('span', { className: 'sku', textContent: s }));
+  // Bordereaux PDF préparés par le PC (avec le SKU) : ouverture → Partager → Imprimer (AirPrint) ou Enregistrer
+  const pdfCache = {};
+  async function getPdf(path) {
+    if (pdfCache[path]) return pdfCache[path];
+    const t = await token(); if (!t) throw new Error('Session expirée');
+    const r = await fetch(`${CFG.url}/storage/v1/object/authenticated/photos/${path}`, { headers: { apikey: CFG.key, authorization: `Bearer ${t}` } });
+    if (!r.ok) throw new Error('Bordereau pas encore prêt (' + r.status + ')');
+    pdfCache[path] = new File([await r.blob()], path.split('/').pop().replace('all.pdf', 'bordereaux.pdf'), { type: 'application/pdf' });
+    return pdfCache[path];
+  }
+  async function openPdf(path, name) {
+    let f;
+    try { f = pdfCache[path] || await getPdf(path); } catch (e) { return toast(e.message); }
+    const file = new File([f], name, { type: 'application/pdf' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: name }); return; } catch (e) { if (e.name === 'AbortError') return; }
+    }
+    const url = URL.createObjectURL(file);
+    if (!window.open(url, '_blank')) location.href = url;
+  }
+  const printBtn = (path, name, label, cls = 'btn small') => { const b = h('button', { className: cls, textContent: label }); b.addEventListener('click', () => openPdf(path, name)); return b; };
   function viewVentes(v) {
     const list = state?.sales || [], rets = state?.returns || [], transit = state?.transit || [];
     v.append(h('h2', { textContent: 'À expédier' }));
     if (!list.length) v.append(h('div', { className: 'empty' }, h('b', { textContent: 'Rien à expédier 🎉' }), 'Les nouvelles ventes apparaîtront ici.'));
     else {
-      v.append(h('div', { className: 'list' }, list.map((o) => h('div', { className: 'li' }, thumb(o.photo), h('div', { className: 'meta' }, h('div', { className: 't', textContent: o.title }), h('div', { className: 's' }, skuChips(o), ' ' + euro(o.price)))))));
+      [...list.map((o) => o.label), state?.labelsAll].filter(Boolean).forEach((p) => getPdf(p).catch(() => {})); // préchargement : impression instantanée
+      v.append(h('div', { className: 'list' }, list.map((o) => h('div', { className: 'li' }, thumb(o.photo),
+        h('div', { className: 'meta' }, h('div', { className: 't', textContent: o.title }), h('div', { className: 's' }, skuChips(o), ' ' + euro(o.price)), o.label ? null : h('div', { className: 's', textContent: 'Bordereau en préparation sur le PC…' })),
+        o.label ? printBtn(o.label, `Bordereau ${(o.skus || []).join('+') || 'Vinted'}.pdf`, '🖨️') : null))));
+      const all = state?.labelsAll || (list.length === 1 ? list[0].label : null);
+      if (all) v.append(printBtn(all, 'Bordereaux Nova.pdf', `🖨️ Imprimer ${list.length > 1 ? 'les ' + list.length + ' bordereaux' : 'le bordereau'}`, 'btn primary'));
+      v.append(h('p', { className: 'sub', textContent: 'Le bordereau s’ouvre avec le SKU en gros : touche Partager → Imprimer (imprimante AirPrint), ou Enregistrer dans Fichiers.' }));
       const a = actions['print'];
-      const b = h('button', { className: 'btn', textContent: a ? (a.status === 'done' ? 'Ouvert sur le PC ✓' : a.status === 'error' ? 'Réessayer' : 'Envoi…') : '🖨️ Préparer les bordereaux sur le PC', disabled: a && a.status !== 'error' && a.status !== 'done' });
+      const b = h('button', { className: 'btn', textContent: a ? (a.status === 'done' ? 'Ouvert sur le PC ✓' : a.status === 'error' ? 'Réessayer' : 'Envoi…') : '🖥️ Ouvrir les bordereaux sur le PC', disabled: a && a.status !== 'error' && a.status !== 'done' });
       b.addEventListener('click', () => doAction('print', 'printLabels', {}));
       v.append(b);
     }

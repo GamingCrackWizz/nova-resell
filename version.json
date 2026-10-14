@@ -1,12 +1,13 @@
 {
-  "version": "1.0.3",
+  "version": "1.1.0",
   "date": "2026-10-14",
   "notes": [
-    "Mises à jour en 2 clics : Nova s'installe et redémarre tout seul",
-    "Thème au choix : Bleu nuit (par défaut), Clair ou comme Windows",
-    "Boîte à suggestions dans l'onglet Aide"
+    "📗 Synchronisation avec ton fichier Excel (SKU, statuts, ventes, marges)",
+    "📱 Imprime tes bordereaux depuis l'iPhone (avec le SKU)",
+    "🏷️ SKU retrouvé même s'il n'est pas dans le titre",
+    "🐞 Les ventes « action requise » apparaissent bien dans Envois"
   ],
   "setup": "https://gamingcrackwizz.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://gamingcrackwizz.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.0.3"
+  "name": "V1.1"
 }
