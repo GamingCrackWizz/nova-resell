@@ -113,6 +113,7 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
 .help { font-size: 13.5px; color: var(--muted); }
 .help ol { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px; }
 .relay { border-color: rgba(52,211,153,.4); }
+.beta { display: inline-block; vertical-align: middle; margin-left: 2px; padding: 3px 7px; border-radius: 7px; background: #EF4444; color: #fff; font: 800 11px/1.2 system-ui, sans-serif; font-style: normal; letter-spacing: .08em; box-shadow: 0 0 12px rgba(239,68,68,.5); position: relative; top: -3px; }
 </style><style>
 :root { padding-top: env(safe-area-inset-top, 0px); }
 [hidden] { display: none !important; }
@@ -147,7 +148,7 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
 <div class="login" id="login" hidden>
   <div class="box">
     <svg class="logo" viewBox="0 0 128 128" aria-hidden="true"><defs><linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22D3EE"/><stop offset="1" stop-color="#818CF8"/></linearGradient></defs><rect width="128" height="128" rx="34" fill="#0B1226"/><ellipse cx="64" cy="64" rx="46" ry="20" fill="none" stroke="url(#lg2)" stroke-width="7" transform="rotate(-28 64 64)"/><path d="M64 34c2 14 8 21 22 25-14 4-20 11-22 26-2-15-8-22-22-26 14-4 20-11 22-25z" fill="#fff"/><circle cx="104" cy="44" r="6" fill="#22D3EE"/></svg>
-    <h1>Nova <span>Resell</span></h1>
+    <h1>Nova <span>Resell</span> <em class="beta">BETA</em></h1>
     <p id="loginSub">Connecte-toi avec ton compte Nova : le même que dans l'extension sur ton PC.</p>
     <label class="field">E-mail<input id="lMail" type="email" autocomplete="username" inputmode="email"></label>
     <label class="field" id="lPassWrap">Mot de passe<input id="lPass" type="password" autocomplete="current-password"></label>
@@ -162,7 +163,7 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
   <header class="hero">
     <div class="brand">
       <svg viewBox="0 0 128 128" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22D3EE"/><stop offset="1" stop-color="#818CF8"/></linearGradient></defs><rect width="128" height="128" rx="34" fill="#0B1226"/><ellipse cx="64" cy="64" rx="46" ry="20" fill="none" stroke="url(#lg)" stroke-width="7" transform="rotate(-28 64 64)"/><path d="M64 34c2 14 8 21 22 25-14 4-20 11-22 26-2-15-8-22-22-26 14-4 20-11 22-25z" fill="#fff"/><circle cx="104" cy="44" r="6" fill="#22D3EE"/></svg>
-      <h1>Nova <span>Resell</span></h1>
+      <h1>Nova <span>Resell</span> <em class="beta">BETA</em></h1>
       <span class="pc" id="pcStatus"><i></i><span id="pcText">PC…</span></span>
     </div>
     <div class="kpis">
