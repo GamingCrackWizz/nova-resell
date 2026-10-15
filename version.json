@@ -1,15 +1,15 @@
 {
-  "version": "1.5.0",
+  "version": "1.5.1",
   "date": "2026-10-15",
   "notes": [
+    "🔧 Onglet Vinted rechargé tout seul après une veille ou une coupure internet (fini les erreurs « page d'erreur »)",
     "🔔 Notifications sur l'iPhone : vente, offre reçue, colis livré, argent versé (appli → 📷 → Activer)",
     "📊 Prix du marché : chaque annonce est comparée aux annonces similaires en ligne",
     "🧠 Contre-offre intelligente : plancher selon ton prix d'achat Excel + marge, ancienneté et favoris",
     "🚚 Suivi des ventes et portefeuille en cours",
-    "🖥️ Mode grand écran (bouton ⛶)",
-    "🔁 Republier : baisse de prix en % ou en €"
+    "🖥️ Mode grand écran (bouton ⛶)"
   ],
   "setup": "https://novaresell.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://novaresell.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.5"
+  "name": "V1.5.1"
 }
