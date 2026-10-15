@@ -1,15 +1,13 @@
 {
-  "version": "1.6.3",
+  "version": "1.7.0",
   "date": "2026-10-15",
   "notes": [
-    "✨ Brouillons : bouton « Photos » pour améliorer les photos avec avant / après",
+    "🔐 Compte Nova obligatoire : 7 jours d'essai complet, puis code d'accès testeur",
+    "✨ Brouillons : bouton « Photos » avec avant / après",
     "#️⃣ 18 à 25 hashtags, mots-clés aussi en anglais, italien, espagnol et allemand",
-    "⚡ Mises à jour en 1 clic sans installateur (Chrome / Edge) + aide si Windows bloque l'installation",
-    "✨ Amélioration automatique des photos (lumière, couleurs, lissage, netteté) avec avant / après",
-    "📗 Excel sur OneDrive : lecture fiable même si le fichier n'est qu'en ligne",
-    "🔧 Onglet Vinted rechargé tout seul après une veille ou une coupure internet (fini les erreurs « page d'erreur »)"
+    "⚡ Mises à jour en 1 clic (Chrome / Edge)"
   ],
   "setup": "https://novaresell.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://novaresell.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.6.3"
+  "name": "V1.7"
 }
