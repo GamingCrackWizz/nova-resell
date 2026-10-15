@@ -86,6 +86,17 @@ h2 { margin: 6px 0 0; font: 700 18px var(--display); text-wrap: balance; }
 .li .meta { flex: 1; min-width: 0; }
 .li .t { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .li .s { font-size: 12.5px; color: var(--muted); }
+.stats .kp { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 10px; }
+.stats .kp > div { display: grid; gap: 2px; }
+.stats .kp b { font-size: 20px; letter-spacing: -.02em; }
+.stats .kp b.pos { color: var(--ok); }
+.stats .kp span { font-size: 12px; color: var(--muted); }
+.mbars { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; height: 82px; align-items: end; }
+.mb { display: grid; grid-template-rows: 1fr auto; height: 100%; align-items: end; justify-items: center; gap: 4px; }
+.mb i { width: 100%; max-width: 30px; border-radius: 6px 6px 3px 3px; background: linear-gradient(180deg, var(--cyan), rgba(34,211,238,.35)); }
+.mb span { font-size: 10.5px; color: var(--muted); }
+.s .pill { margin-left: 6px; }
+.warnbox { border-color: rgba(248,113,113,.5); background: rgba(248,113,113,.08); gap: 4px; }
 .pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--surface-2); color: var(--muted); }
 .pill.ok { background: rgba(52,211,153,.15); color: var(--ok); }
 .pill.run { background: rgba(34,211,238,.15); color: var(--cyan); }
@@ -511,12 +522,24 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
   const printBtn = (path, name, label, cls = 'btn small') => { const b = h('button', { className: cls, textContent: label }); b.addEventListener('click', () => openPdf(path, name)); return b; };
   function viewVentes(v) {
     const list = state?.sales || [], rets = state?.returns || [], transit = state?.transit || [];
+    const st = state?.stats;
+    if (st && st.today) {
+      const ms = st.months || []; const max = Math.max(1, ...ms.map((m) => Math.max(m.profit || 0, st.hasExcel ? 0 : m.ca || 0)));
+      v.append(h('div', { className: 'card stats' },
+        h('div', { className: 'kp' },
+          h('div', {}, h('b', { textContent: euro(st.today.ca) }), h('span', { textContent: `aujourd’hui · ${st.today.n} vente${st.today.n > 1 ? 's' : ''}` })),
+          h('div', {}, h('b', { textContent: euro(st.month) }), h('span', { textContent: `ce mois · ${st.monthN || 0} vente${(st.monthN || 0) > 1 ? 's' : ''}` })),
+          st.hasExcel ? h('div', {}, h('b', { className: 'pos', textContent: euro(st.monthProfit || 0) }), h('span', { textContent: 'bénéfice du mois' })) : null),
+        ms.length ? h('div', { className: 'mbars' }, ms.map((m) => { const val = st.hasExcel ? m.profit : m.ca; return h('div', { className: 'mb' }, h('i', { style: `height:${Math.max(4, (Math.max(0, val) / max) * 100)}%` }), h('span', { textContent: m.label.replace('.', '') })); })) : null,
+        h('div', { className: 'sub', textContent: st.hasExcel ? `Barres : bénéfice des 6 derniers mois${st.monthKnown < st.monthN ? ` (prix d’achat connu pour ${st.monthKnown}/${st.monthN} ventes ce mois)` : ''}.` : 'Barres : chiffre d’affaires des 6 derniers mois. Relie ton Excel sur le PC pour voir ton bénéfice.' })));
+    }
+    if (st?.late) v.append(h('div', { className: 'card warnbox' }, h('b', { textContent: `⚠️ ${st.late} colis à déposer depuis plus de 2 jours` }), h('div', { className: 'sub', textContent: 'Dépose-les vite en point relais : Vinted peut annuler la commande.' })));
     v.append(h('h2', { textContent: 'À expédier' }));
     if (!list.length) v.append(h('div', { className: 'empty' }, h('b', { textContent: 'Rien à expédier 🎉' }), 'Les nouvelles ventes apparaîtront ici.'));
     else {
       [...list.map((o) => o.label), state?.labelsAll].filter(Boolean).forEach((p) => getPdf(p).catch(() => {})); // préchargement : impression instantanée
       v.append(h('div', { className: 'list' }, list.map((o) => h('div', { className: 'li' }, thumb(o.photo),
-        h('div', { className: 'meta' }, h('div', { className: 't', textContent: o.title }), h('div', { className: 's' }, skuChips(o), ' ' + euro(o.price)), o.label ? null : h('div', { className: 's', textContent: 'Bordereau en préparation sur le PC…' })),
+        h('div', { className: 'meta' }, h('div', { className: 't', textContent: o.title }), h('div', { className: 's' }, skuChips(o), ' ' + euro(o.price), o.days >= 2 ? h('span', { className: 'pill err', textContent: ` vendu il y a ${o.days} j` }) : null), o.label ? null : h('div', { className: 's', textContent: 'Bordereau en préparation sur le PC…' })),
         o.label ? printBtn(o.label, `Bordereau ${(o.skus || []).join('+') || 'Vinted'}.pdf`, '🖨️') : null))));
       const all = state?.labelsAll || (list.length === 1 ? list[0].label : null);
       if (all) v.append(printBtn(all, 'Bordereaux Nova.pdf', `🖨️ Imprimer ${list.length > 1 ? 'les ' + list.length + ' bordereaux' : 'le bordereau'}`, 'btn primary'));
@@ -540,7 +563,7 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
         h('div', { className: 't', textContent: o.title }), h('div', { className: 's' }, skuChips(o), ' ' + euro(o.price)),
         h('div', { className: 's eta', textContent: '📅 Livraison estimée : ' + etaText(o.eta) }))))));
     }
-    if (state?.stats) v.append(h('div', { className: 'card' }, h('b', { textContent: 'Ce mois-ci' }), h('div', { className: 'sub', textContent: `${euro(state.stats.month)} de ventes · ${state.stats.online} annonces en ligne · ${state.stats.drafts} brouillons` }), state.updatedAt ? h('div', { className: 'sub', textContent: 'Mis à jour ' + ago(state.updatedAt) }) : null));
+    if (state?.stats) v.append(h('div', { className: 'card' }, h('div', { className: 'sub', textContent: `${state.stats.online} annonces en ligne · ${state.stats.drafts} brouillons` }), state.updatedAt ? h('div', { className: 'sub', textContent: 'Mis à jour ' + ago(state.updatedAt) }) : null));
   }
 
   let repostAll = false;

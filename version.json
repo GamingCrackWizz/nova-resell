@@ -1,13 +1,15 @@
 {
-  "version": "1.2.2",
+  "version": "1.3.0",
   "date": "2026-10-15",
   "notes": [
-    "📗 Excel : choisis ton fichier où qu'il soit (OneDrive compris), ou importe une copie (tous navigateurs)",
-    "🖨️ Bordereau à la verticale avec uniquement le SKU en haut",
-    "✂️ Bordereaux recadrés sur l'étiquette (PC et iPhone)",
-    "📬 Suggestions des testeurs dans l'onglet Aide (admin)"
+    "🛍️ Offres groupées : un lot proposé à qui aime 2 de tes articles",
+    "💰 Rentabilité : bénéfice par mois, marque et provenance (Ventes → Stats)",
+    "📦 Rappel si un colis n'est pas déposé 48 h après la vente",
+    "⭐ Réponses aux avis des acheteurs (Réponses)",
+    "📱 Stats du jour et du mois sur l'iPhone",
+    "🎬 Vidéo guide d'1 minute dans l'onglet Aide"
   ],
   "setup": "https://gamingcrackwizz.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://gamingcrackwizz.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.2.2"
+  "name": "V1.3"
 }
