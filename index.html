@@ -353,7 +353,7 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
       state = st?.[0] ? { ...st[0].data, updatedAt: new Date(st[0].updated_at).getTime() } : null;
       jobs = (js || []).map((j) => ({ ...j, createdAt: new Date(j.created_at).getTime() }));
       actions = {}; (acts || []).reverse().forEach((a) => { actions[a.key] = { status: a.status, error: a.error, at: a.payload?.at ?? null }; });
-      if (!busy && !document.activeElement?.matches('textarea')) render(); else renderHeader();
+      if (!busy && !picking && !document.activeElement?.matches('textarea')) render(); else renderHeader();
     } catch (e) { if (/session/i.test(e.message)) logout(); }
   }
   let pollT; function poll() { clearInterval(pollT); refresh(); pollT = setInterval(() => { if (!document.hidden) refresh(); }, 6000); }
@@ -433,14 +433,21 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
     badge('#tabPhotos', jobs.filter((j) => j.status === 'new' || j.status === 'pc').length);
   }
 
+  // Un seul champ « photos » pour toute la session : s'il était recréé à chaque rafraîchissement (toutes les 6 s),
+  // l'iPhone renverrait les photos choisies vers un champ disparu → rien ne s'affichait.
+  let picking = false, pickT = null;
+  const pickInput = h('input', { type: 'file', accept: 'image/*', multiple: true, id: 'pickInput', ariaLabel: 'Choisir les photos' });
+  pickInput.addEventListener('click', () => { picking = true; clearTimeout(pickT); pickT = setTimeout(() => { picking = false; }, 120000); });
+  pickInput.addEventListener('change', () => {
+    picking = false; clearTimeout(pickT);
+    const files = [...pickInput.files]; pickInput.value = '';
+    if (!files.length) return;
+    staged.push({ files, urls: files.map((f) => URL.createObjectURL(f)) });
+    render();
+  });
+  pickInput.addEventListener('cancel', () => { picking = false; });
   function viewPhotos(v) {
-    const input = h('input', { type: 'file', accept: 'image/*', multiple: true, id: 'pickInput', ariaLabel: 'Choisir les photos' });
-    input.addEventListener('change', async () => {
-      const files = [...input.files]; input.value = '';
-      if (!files.length) return;
-      staged.push({ files, urls: files.map((f) => URL.createObjectURL(f)) });
-      render();
-    });
+    const input = pickInput;
     v.append(
       h('h2', { textContent: 'Nouvel article' }),
       h('p', { className: 'sub', textContent: "Une sélection = un article. Prends face, dos et étiquettes, ajoute autant d'articles que tu veux, puis envoie tout au PC." }),
