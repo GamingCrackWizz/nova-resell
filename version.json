@@ -1,14 +1,14 @@
 {
-  "version": "1.7.1",
+  "version": "1.7.2",
   "date": "2026-10-15",
   "notes": [
+    "🛡️ Sécurité renforcée (accès admin, suggestions réservées aux comptes, code protégé)",
     "🔒 Mes données : exporter ou supprimer ton compte (⚙︎ → Compte)",
     "🔐 Compte Nova obligatoire : 7 jours d'essai complet, puis code d'accès testeur",
     "✨ Brouillons : bouton « Photos » avec avant / après",
-    "#️⃣ 18 à 25 hashtags, mots-clés aussi en anglais, italien, espagnol et allemand",
-    "⚡ Mises à jour en 1 clic (Chrome / Edge)"
+    "#️⃣ 18 à 25 hashtags, mots-clés aussi en anglais, italien, espagnol et allemand"
   ],
   "setup": "https://novaresell.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://novaresell.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.7.1"
+  "name": "V1.7.2"
 }
