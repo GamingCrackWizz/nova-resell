@@ -364,6 +364,41 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
     try { await rest('POST', 'actions', { key, type, payload, status: 'new' }); toast('Envoyé au PC'); }
     catch (e) { actions[key] = { status: 'error', error: e.message }; render(); }
   }
+  // ---------- Notifications (Web Push : le PC envoie, l'iPhone affiche) ----------
+  const pushSupported = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  const standalone = () => window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+  let swReg = null;
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').then((r) => { swReg = r; }).catch(() => {});
+  const keyBytes = (b) => { b = b.replace(/-/g, '+').replace(/_/g, '/'); while (b.length % 4) b += '='; return Uint8Array.from(atob(b), (c) => c.charCodeAt(0)); };
+  async function enablePush() {
+    if (!state?.pushKey) return toast('Ouvre d’abord Nova sur le PC (mise à jour V1.5)');
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') return toast('Notifications refusées : Réglages iPhone → Notifications → Nova');
+    const reg = swReg || await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    const want = keyBytes(state.pushKey);
+    if (sub) { const k = new Uint8Array(sub.options?.applicationServerKey || []); if (k.length && k.join() !== want.join()) { await sub.unsubscribe(); sub = null; } }
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: want });
+    const device = /iPad/.test(navigator.userAgent) ? 'iPad' : /iPhone/.test(navigator.userAgent) ? 'iPhone' : /Android/.test(navigator.userAgent) ? 'Android' : 'Téléphone';
+    store.set('nova_push', 1);
+    await doAction('push-' + Date.now(), 'pushSub', { sub: sub.toJSON(), device });
+    render();
+  }
+  function pushCard() {
+    const on = window.Notification?.permission === 'granted' && store.get('nova_push') && state?.pushOn;
+    const c = h('div', { className: 'card push' }, h('b', { textContent: '🔔 Notifications' }));
+    if (!pushSupported()) c.append(h('div', { className: 'sub', textContent: standalone() ? 'Ton iPhone doit être en iOS 16.4 ou plus pour recevoir les notifications.' : 'Ajoute d’abord Nova à l’écran d’accueil (Safari → Partager → « Sur l’écran d’accueil »), puis ouvre-la depuis l’icône.' }));
+    else if (on) {
+      c.append(h('div', { className: 'sub', textContent: 'Activées : nouvelles ventes, offres, colis livrés, argent versé et rappels d’expédition. (Le PC doit être allumé.)' }));
+      const t = h('button', { className: 'linkbtn', textContent: 'Envoyer un test' }); t.addEventListener('click', () => doAction('ptest-' + Date.now(), 'pushTest', {})); c.append(t);
+    } else {
+      c.append(h('div', { className: 'sub', textContent: 'Sois prévenu même appli fermée : vente, offre reçue, colis livré, argent versé.' }));
+      const b = h('button', { className: 'btn primary', textContent: '🔔 Activer les notifications' });
+      b.addEventListener('click', () => enablePush().catch((e) => toast('Impossible : ' + e.message)));
+      c.append(b);
+    }
+    return c;
+  }
   // ---------- Vues ----------
   function render() {
     document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.tab === tab));
@@ -374,6 +409,7 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
     if (tab === 'repost') viewRepost(v);
     if (tab === 'favs') viewFavs(v);
     if (tab === 'ventes') viewVentes(v);
+    if (tab === 'photos') v.append(pushCard());
     if (tab === 'photos') v.append(h('div', { className: 'me' }, h('span', { textContent: '👤 ' + (session?.user?.email || '') }), (() => { const b = h('button', { className: 'linkbtn', textContent: 'Se déconnecter' }); b.addEventListener('click', logout); return b; })()));
     renderHeader();
   }
