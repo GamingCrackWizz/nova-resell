@@ -529,7 +529,8 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
         h('div', { className: 'kp' },
           h('div', {}, h('b', { textContent: euro(st.today.ca) }), h('span', { textContent: `aujourd’hui · ${st.today.n} vente${st.today.n > 1 ? 's' : ''}` })),
           h('div', {}, h('b', { textContent: euro(st.month) }), h('span', { textContent: `ce mois · ${st.monthN || 0} vente${(st.monthN || 0) > 1 ? 's' : ''}` })),
-          st.hasExcel ? h('div', {}, h('b', { className: 'pos', textContent: euro(st.monthProfit || 0) }), h('span', { textContent: 'bénéfice du mois' })) : null),
+          st.hasExcel ? h('div', {}, h('b', { className: 'pos', textContent: euro(st.monthProfit || 0) }), h('span', { textContent: 'bénéfice du mois' })) : null,
+          st.wallet != null ? h('div', {}, h('b', { textContent: euro(st.wallet) }), h('span', { textContent: 'portefeuille en cours' })) : null),
         ms.length ? h('div', { className: 'mbars' }, ms.map((m) => { const val = st.hasExcel ? m.profit : m.ca; return h('div', { className: 'mb' }, h('i', { style: `height:${Math.max(4, (Math.max(0, val) / max) * 100)}%` }), h('span', { textContent: m.label.replace('.', '') })); })) : null,
         h('div', { className: 'sub', textContent: st.hasExcel ? `Barres : bénéfice des 6 derniers mois${st.monthKnown < st.monthN ? ` (prix d’achat connu pour ${st.monthKnown}/${st.monthN} ventes ce mois)` : ''}.` : 'Barres : chiffre d’affaires des 6 derniers mois. Relie ton Excel sur le PC pour voir ton bénéfice.' })));
     }
@@ -558,10 +559,10 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
         h('div', { className: 's eta', textContent: o.eta ? '📅 Arrivée du colis retour : ' + etaText(o.eta) : "📅 Date d'arrivée : dès que l'acheteur aura expédié" }))))));
     }
     if (transit.length) {
-      v.append(h('h2', { textContent: '🚚 En route vers l’acheteur' }));
+      v.append(h('h2', { textContent: '🚚 En route et livrées' }));
       v.append(h('div', { className: 'list' }, transit.map((o) => h('div', { className: 'li' }, thumb(o.photo), h('div', { className: 'meta' },
         h('div', { className: 't', textContent: o.title }), h('div', { className: 's' }, skuChips(o), ' ' + euro(o.price)),
-        h('div', { className: 's eta', textContent: '📅 Livraison estimée : ' + etaText(o.eta) }))))));
+        h('div', { className: 's eta', textContent: o.deliveredAt ? `✅ Livré le ${new Date(o.deliveredAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}${o.closeAt ? ' · clôture le ' + new Date(o.closeAt).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }) : ''}` : o.eta ? '📅 Livraison estimée : ' + etaText(o.eta) : '🚚 ' + (o.step || 'Expédié') }))))));
     }
     if (state?.stats) v.append(h('div', { className: 'card' }, h('div', { className: 'sub', textContent: `${state.stats.online} annonces en ligne · ${state.stats.drafts} brouillons` }), state.updatedAt ? h('div', { className: 'sub', textContent: 'Mis à jour ' + ago(state.updatedAt) }) : null));
   }
@@ -570,8 +571,8 @@ textarea { width: 100%; font: inherit; color: var(--text); background: var(--sur
   function viewRepost(v) {
     const all = state?.repostItems || [];
     const due = all.filter((i) => i.due);
-    const disc = state?.repostDiscount || 0;
-    v.append(h('h2', { textContent: 'Republier' }), h('p', { className: 'sub', textContent: `Ton PC copie l'annonce (photos comprises), la remet en ligne${disc ? ` à -${disc} %` : ''} puis supprime l'ancienne. Une à la fois, environ toutes les 30 s.` }));
+    const disc = state?.repostLabel || (state?.repostDiscount ? `-${state.repostDiscount} %` : '');
+    v.append(h('h2', { textContent: 'Republier' }), h('p', { className: 'sub', textContent: `Ton PC copie l'annonce (photos comprises), la remet en ligne${disc ? ` à ${disc}` : ''} puis supprime l'ancienne. Une à la fois, environ toutes les 30 s.` }));
     const seg = h('div', { className: 'row segm' }, ...[['À republier (' + due.length + ')', false], ['Toutes (' + all.length + ')', true]].map(([t, val]) => { const b = h('button', { className: 'btn small' + (repostAll === val ? ' primary' : ''), textContent: t }); b.addEventListener('click', () => { repostAll = val; render(); }); return b; }));
     v.append(seg);
     const shown = repostAll ? all : due;

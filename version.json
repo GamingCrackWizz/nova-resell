@@ -1,15 +1,16 @@
 {
-  "version": "1.3.2",
+  "version": "1.4.0",
   "date": "2026-10-15",
   "notes": [
+    "🚚 Suivi des ventes : en route → livré (date) → clôture, avec total du portefeuille en cours",
+    "🖥️ Mode grand écran (bouton ⛶) avec une vraie mise en page bureau",
+    "🔁 Republier : baisse de prix au choix en % ou en €",
+    "💬 Bulles de réponses rapides retirées des conversations Vinted (réactivables dans Réponses)",
+    "💳 Crédit API et barème en euros par action",
     "💸 Consommation de la clé API divisée par ~2 (photos optimisées pour l'IA, messages « merci/ok » ignorés)",
-    "🌐 Nouvelle adresse de l'appli : novaresell.github.io/nova-resell",
-    "🛍️ Offres groupées : un lot proposé à qui aime 2 de tes articles",
-    "💰 Rentabilité : bénéfice par mois, marque et provenance (Ventes → Stats)",
-    "📦 Rappel si un colis n'est pas déposé 48 h après la vente",
-    "⭐ Réponses aux avis des acheteurs (Réponses)"
+    "🌐 Nouvelle adresse de l'appli : novaresell.github.io/nova-resell"
   ],
   "setup": "https://novaresell.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://novaresell.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.3.2"
+  "name": "V1.4"
 }
