@@ -1,13 +1,13 @@
 {
-  "version": "1.2.0",
+  "version": "1.2.2",
   "date": "2026-10-15",
   "notes": [
-    "✂️ Bordereaux recadrés : seulement l'étiquette + le SKU (PC et iPhone)",
-    "📗 Excel : colonne SKU ajoutée à ton tableau, lignes reliées à Vinted par le nom, ventes remplies toutes seules",
-    "📗 Bouton « Choisir mon fichier Excel » réparé",
-    "📬 Les suggestions des testeurs se lisent dans l'onglet Aide (compte admin)"
+    "📗 Excel : choisis ton fichier où qu'il soit (OneDrive compris), ou importe une copie (tous navigateurs)",
+    "🖨️ Bordereau à la verticale avec uniquement le SKU en haut",
+    "✂️ Bordereaux recadrés sur l'étiquette (PC et iPhone)",
+    "📬 Suggestions des testeurs dans l'onglet Aide (admin)"
   ],
   "setup": "https://gamingcrackwizz.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://gamingcrackwizz.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.2"
+  "name": "V1.2.2"
 }
