@@ -1,5 +1,5 @@
 {
-  "version": "1.5.1",
+  "version": "1.5.2",
   "date": "2026-10-15",
   "notes": [
     "🔧 Onglet Vinted rechargé tout seul après une veille ou une coupure internet (fini les erreurs « page d'erreur »)",
@@ -11,5 +11,5 @@
   ],
   "setup": "https://novaresell.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://novaresell.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.5.1"
+  "name": "V1.5.2"
 }
