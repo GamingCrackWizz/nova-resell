@@ -1,14 +1,14 @@
 {
-  "version": "1.7.4",
+  "version": "1.7.5",
   "date": "2026-10-15",
   "notes": [
+    "✨ Bouton « Améliorer / Retirer l'effet IA » sur chaque article, y compris ceux reçus du téléphone",
+    "🤖 Surveillance automatique : si Vinted change quelque chose, la panne est signalée tout de suite pour être corrigée",
     "🔧 Correctifs : articles « Réponse de Claude illisible », prix du marché (Vinted a changé sa recherche), couleur manquante au brouillon",
     "🗺️ Nouveau : « Bientôt dans Nova » dans l'onglet Aide (stock intégré, IA incluse…)",
-    "🛡️ Sécurité renforcée (accès admin, suggestions réservées aux comptes, code protégé)",
-    "🔒 Mes données : exporter ou supprimer ton compte (⚙︎ → Compte)",
-    "🔐 Compte Nova obligatoire : 7 jours d'essai complet, puis code d'accès testeur"
+    "🛡️ Sécurité renforcée (accès admin, suggestions réservées aux comptes, code protégé)"
   ],
   "setup": "https://novaresell.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://novaresell.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.7.4"
+  "name": "V1.7.5"
 }
