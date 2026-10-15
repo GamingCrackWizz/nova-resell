@@ -1,15 +1,15 @@
 {
-  "version": "1.6.1",
+  "version": "1.6.3",
   "date": "2026-10-15",
   "notes": [
+    "✨ Brouillons : bouton « Photos » pour améliorer les photos avec avant / après",
+    "#️⃣ 18 à 25 hashtags, mots-clés aussi en anglais, italien, espagnol et allemand",
     "⚡ Mises à jour en 1 clic sans installateur (Chrome / Edge) + aide si Windows bloque l'installation",
     "✨ Amélioration automatique des photos (lumière, couleurs, lissage, netteté) avec avant / après",
     "📗 Excel sur OneDrive : lecture fiable même si le fichier n'est qu'en ligne",
-    "🔧 Onglet Vinted rechargé tout seul après une veille ou une coupure internet (fini les erreurs « page d'erreur »)",
-    "🔔 Notifications sur l'iPhone : vente, offre reçue, colis livré, argent versé (appli → 📷 → Activer)",
-    "📊 Prix du marché : chaque annonce est comparée aux annonces similaires en ligne"
+    "🔧 Onglet Vinted rechargé tout seul après une veille ou une coupure internet (fini les erreurs « page d'erreur »)"
   ],
   "setup": "https://novaresell.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://novaresell.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.6.1"
+  "name": "V1.6.3"
 }
