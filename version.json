@@ -1,7 +1,8 @@
 {
-  "version": "1.7.9",
+  "version": "1.8.0",
   "date": "2026-10-16",
   "notes": [
+    "❤️ Favoris : la liste se met à jour toute seule quand tu ouvres l'onglet",
     "⚡ Mise à jour en 1 clic : plus besoin de trouver le bon dossier, choisis « Nova Resell » et Nova se retrouve tout seul",
     "🛡️ Nova relit tes annonces beaucoup moins souvent : moins de vérifications « Je ne suis pas un robot » de Vinted",
     "🔁 Republier : les anciennes annonces modifiées (prix, photos…) apparaissent enfin — leur vraie date est retrouvée",
@@ -14,5 +15,5 @@
   ],
   "setup": "https://novaresell.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://novaresell.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.7.9"
+  "name": "V1.8.0"
 }
