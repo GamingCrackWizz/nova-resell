@@ -1,7 +1,8 @@
 {
-  "version": "1.8.1",
+  "version": "1.8.2",
   "date": "2026-10-16",
   "notes": [
+    "☁️ À la connexion, tes réglages et réponses enregistrées reviennent tout seuls (même après une réinstallation)",
     "🤖 Agent IA en mode Automatique : il répond tout seul, sans aucune validation (les réponses en attente partent aussi)",
     "❤️ Favoris : la liste se met à jour toute seule quand tu ouvres l'onglet",
     "⚡ Mise à jour en 1 clic : plus besoin de trouver le bon dossier, choisis « Nova Resell » et Nova se retrouve tout seul",
@@ -16,5 +17,5 @@
   ],
   "setup": "https://novaresell.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://novaresell.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.8.1"
+  "name": "V1.8.2"
 }
