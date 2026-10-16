@@ -1,7 +1,8 @@
 {
-  "version": "1.7.7",
+  "version": "1.7.8",
   "date": "2026-10-16",
   "notes": [
+    "🛡️ Nova relit tes annonces beaucoup moins souvent : moins de vérifications « Je ne suis pas un robot » de Vinted",
     "🔁 Republier : les anciennes annonces modifiées (prix, photos…) apparaissent enfin — leur vraie date est retrouvée",
     "🔓 Pendant l'essai, sans clé API : republication, favoris, lots, prix, ventes, étiquettes, Excel et photos marchent directement (plus de fenêtre « clé API » au lancement)",
     "✨ Bouton « Améliorer / Retirer l'effet IA » sur chaque article, y compris ceux reçus du téléphone",
@@ -12,5 +13,5 @@
   ],
   "setup": "https://novaresell.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://novaresell.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.7.7"
+  "name": "V1.7.8"
 }
