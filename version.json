@@ -1,7 +1,8 @@
 {
-  "version": "1.7.8",
+  "version": "1.7.9",
   "date": "2026-10-16",
   "notes": [
+    "⚡ Mise à jour en 1 clic : plus besoin de trouver le bon dossier, choisis « Nova Resell » et Nova se retrouve tout seul",
     "🛡️ Nova relit tes annonces beaucoup moins souvent : moins de vérifications « Je ne suis pas un robot » de Vinted",
     "🔁 Republier : les anciennes annonces modifiées (prix, photos…) apparaissent enfin — leur vraie date est retrouvée",
     "🔓 Pendant l'essai, sans clé API : republication, favoris, lots, prix, ventes, étiquettes, Excel et photos marchent directement (plus de fenêtre « clé API » au lancement)",
@@ -13,5 +14,5 @@
   ],
   "setup": "https://novaresell.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://novaresell.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.7.8"
+  "name": "V1.7.9"
 }
