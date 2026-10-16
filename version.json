@@ -1,7 +1,8 @@
 {
-  "version": "1.7.5",
-  "date": "2026-10-15",
+  "version": "1.7.6",
+  "date": "2026-10-16",
   "notes": [
+    "🔓 Pendant l'essai, sans clé API : republication, favoris, lots, prix, ventes, étiquettes, Excel et photos marchent directement (plus de fenêtre « clé API » au lancement)",
     "✨ Bouton « Améliorer / Retirer l'effet IA » sur chaque article, y compris ceux reçus du téléphone",
     "🤖 Surveillance automatique : si Vinted change quelque chose, la panne est signalée tout de suite pour être corrigée",
     "🔧 Correctifs : articles « Réponse de Claude illisible », prix du marché (Vinted a changé sa recherche), couleur manquante au brouillon",
@@ -10,5 +11,5 @@
   ],
   "setup": "https://novaresell.github.io/nova-resell/nova-resell-setup.exe",
   "zip": "https://novaresell.github.io/nova-resell/nova-resell.zip",
-  "name": "V1.7.5"
+  "name": "V1.7.6"
 }
